@@ -52,9 +52,17 @@ export const PeriodeModule = {
       throw new Error("Nama periode wajib diisi");
     }
 
-    let fileName: string | null = null;
-
     try {
+      const existingPeriode = await prisma.periode.findFirst({
+        where: { periode: periode },
+      });
+
+      if (existingPeriode) {
+        throw new Error("Nama periode sudah ada");
+      }
+
+      let fileName: string | null = null;
+
       // Jika ada file yang diunggah, proses dengan sharp
       if (file) {
         fileName = await uploadImageWebp(file);
@@ -106,6 +114,16 @@ export const PeriodeModule = {
       // Ambil data lama
       const oldData = await prisma.periode.findUnique({ where: { periodeId: Number(periodeId) } });
       if (!oldData) throw new Error("Periode tidak ditemukan");
+
+      // Cek apakah ada periode lain dengan nama yang sama
+      if (periode !== oldData.periode) {
+        const existingPeriode = await prisma.periode.findFirst({
+          where: { periode: periode },
+        });
+        if (existingPeriode) {
+          throw new Error("Nama periode sudah ada");
+        }
+      }
 
       let fileName = oldData.gambarPeriode;
 
@@ -171,21 +189,43 @@ export const PeriodeModule = {
     if (!periodeId) throw new Error("ID Periode wajib diisi");
 
     try {
-      const oldData = await prisma.periode.findUnique({ where: { periodeId: Number(periodeId) } });
+      const oldData = await prisma.periode.findUnique({ 
+        where: { periodeId: Number(periodeId) },
+        include: {
+          divisi: {
+            include: {
+              pengurus: true
+            }
+          }
+        }
+      });
       if (!oldData) throw new Error("Periode tidak ditemukan");
 
       // Hapus data dari database (otomatis hapus divisi dll karena Cascade)
       await prisma.periode.delete({ where: { periodeId: Number(periodeId) } });
 
       // Hapus file fisik
-      if (oldData.gambarPeriode) {
-        const fs = require('fs');
-        const path = require('path');
-        const oldPath = path.join(process.cwd(), "public", "uploads", oldData.gambarPeriode);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
+      const fs = require('fs');
+      const path = require('path');
+      
+      const deleteFile = (filename: string | null | undefined) => {
+        if (filename) {
+          const filePath = path.join(process.cwd(), "public", "uploads", filename);
+          if (fs.existsSync(filePath)) {
+            try {
+              fs.unlinkSync(filePath);
+            } catch (e) {}
+          }
         }
-      }
+      };
+
+      deleteFile(oldData.gambarPeriode);
+      oldData.divisi.forEach((div) => {
+        deleteFile(div.gambarDivisi);
+        div.pengurus.forEach((p) => {
+          deleteFile(p.gambarPengurus);
+        });
+      });
 
       return {
         message: "Periode berhasil dihapus",
@@ -209,6 +249,14 @@ export const PeriodeModule = {
       // 1. Ambil data lama
       const oldData = await prisma.periode.findUnique({ where: { periodeId: Number(periodeId) } });
       if (!oldData) throw new Error("Periode lama tidak ditemukan");
+
+      // Cek apakah periode baru sudah ada (newPeriodeName)
+      const existingNewPeriode = await prisma.periode.findFirst({
+        where: { periode: newPeriodeName },
+      });
+      if (existingNewPeriode) {
+        throw new Error("Nama periode pengganti sudah ada");
+      }
 
       let oldFileName = oldData.gambarPeriode;
       let newFileName: string | null = null;

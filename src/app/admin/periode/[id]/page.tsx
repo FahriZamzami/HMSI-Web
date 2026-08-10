@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { FaArrowLeft, FaPlus, FaTimes, FaUsers, FaImage, FaEdit } from "react-icons/fa";
+import { FaArrowLeft, FaPlus, FaTimes, FaUsers, FaImage, FaEdit, FaTrash } from "react-icons/fa";
 
 interface Divisi {
   divisiId: number;
@@ -71,6 +71,28 @@ export default function DetailPeriodePage({ params }: { params: Promise<{ id: st
     fetchDivisi();
     fetchPeriodeInfo();
   }, [id]);
+
+  const deleteDivisi = async (divisiId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Hapus divisi ini? Semua pengurus dan program kerja di dalamnya juga akan terhapus secara permanen.")) return;
+    
+    try {
+      const response = await fetch("/api/divisi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", payload: { divisiId } })
+      });
+      if (response.ok) {
+        fetchDivisi();
+      } else {
+        const resData = await response.json();
+        alert(resData.error || "Gagal menghapus divisi");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan sistem saat menghapus divisi");
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -221,13 +243,22 @@ export default function DetailPeriodePage({ params }: { params: Promise<{ id: st
                   <h3 className="text-xl font-bold text-white drop-shadow-md">
                     {d.divisiName}
                   </h3>
-                  <button
-                    onClick={(e) => openEditModal(d, e)}
-                    className="p-2 bg-neutral-900/80 hover:bg-orange-500 text-white rounded-lg backdrop-blur-sm transition-colors shadow-lg"
-                    title="Edit Divisi"
-                  >
-                    <FaEdit size={14} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => openEditModal(d, e)}
+                      className="p-2 bg-neutral-900/80 hover:bg-orange-500 text-white rounded-lg backdrop-blur-sm transition-colors shadow-lg"
+                      title="Edit Divisi"
+                    >
+                      <FaEdit size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => deleteDivisi(d.divisiId, e)}
+                      className="p-2 bg-neutral-900/80 hover:bg-red-500 text-white rounded-lg backdrop-blur-sm transition-colors shadow-lg"
+                      title="Hapus Divisi"
+                    >
+                      <FaTrash size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="p-4 flex justify-center text-sm">

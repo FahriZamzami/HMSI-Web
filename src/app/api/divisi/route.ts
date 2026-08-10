@@ -52,6 +52,10 @@ export async function POST(request: Request) {
         result = await DivisiModule.update({ ...payload, file });
         break;
 
+      case "delete":
+        result = await DivisiModule.delete(payload);
+        break;
+
       default:
         return NextResponse.json(
           { error: `Aksi '${action}' tidak dikenali oleh Divisi API` },

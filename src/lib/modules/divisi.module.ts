@@ -53,6 +53,17 @@ export const DivisiModule = {
     }
 
     try {
+      const existingDivisi = await prisma.divisi.findFirst({
+        where: {
+          periodeId: Number(periodeId),
+          divisiName: divisiName,
+        },
+      });
+
+      if (existingDivisi) {
+        throw new Error("Nama divisi sudah ada di periode ini");
+      }
+
       let fileName = "";
       if (file) {
         fileName = await uploadImageWebp(file);
@@ -90,6 +101,18 @@ export const DivisiModule = {
       const oldData = await prisma.divisi.findUnique({ where: { divisiId: Number(divisiId) } });
       if (!oldData) throw new Error("Divisi tidak ditemukan");
 
+      if (divisiName !== oldData.divisiName) {
+        const existingDivisi = await prisma.divisi.findFirst({
+          where: {
+            periodeId: oldData.periodeId,
+            divisiName: divisiName,
+          },
+        });
+        if (existingDivisi) {
+          throw new Error("Nama divisi sudah ada di periode ini");
+        }
+      }
+
       let fileName = oldData.gambarDivisi;
 
       if (file) {
@@ -121,6 +144,51 @@ export const DivisiModule = {
       };
     } catch (error: any) {
       throw new Error(`Gagal memperbarui divisi: ${error.message}`);
+    }
+  },
+
+  /**
+   * Menghapus data divisi beserta file gambarnya dan gambar anggotanya
+   */
+  async delete(payload: any) {
+    const { divisiId } = payload;
+    if (!divisiId) throw new Error("ID Divisi wajib diisi");
+
+    try {
+      const oldData = await prisma.divisi.findUnique({ 
+        where: { divisiId: Number(divisiId) },
+        include: { pengurus: true }
+      });
+      if (!oldData) throw new Error("Divisi tidak ditemukan");
+
+      // Hapus data dari database (otomatis hapus pengurus dll karena Cascade)
+      await prisma.divisi.delete({ where: { divisiId: Number(divisiId) } });
+
+      // Hapus file fisik
+      const fs = require('fs');
+      const path = require('path');
+      
+      const deleteFile = (filename: string | null | undefined) => {
+        if (filename) {
+          const filePath = path.join(process.cwd(), "public", "uploads", filename);
+          if (fs.existsSync(filePath)) {
+            try {
+              fs.unlinkSync(filePath);
+            } catch (e) {}
+          }
+        }
+      };
+
+      deleteFile(oldData.gambarDivisi);
+      oldData.pengurus.forEach((p) => {
+        deleteFile(p.gambarPengurus);
+      });
+
+      return {
+        message: "Divisi berhasil dihapus",
+      };
+    } catch (error: any) {
+      throw new Error(`Gagal menghapus divisi: ${error.message}`);
     }
   }
 };

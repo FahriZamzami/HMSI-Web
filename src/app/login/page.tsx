@@ -44,24 +44,17 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full relative flex items-center justify-center bg-neutral-900 overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/1.jpg"
-          alt="HMSI Background"
-          fill
-          className="object-cover opacity-30 blur-sm scale-105"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/80"></div>
+      {/* Grid Background */}
+      <div className="absolute inset-0 z-0 bg-[#050505]">
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
       </div>
 
       {/* Login Card (Glassmorphism) */}
       <div className="relative z-10 w-full max-w-md p-8 sm:p-10 mx-4 bg-white/10 dark:bg-black/30 backdrop-blur-lg border border-white/20 rounded-[2rem] shadow-2xl">
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-4 hover:scale-105 transition-transform">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto border border-white/30 shadow-inner">
-              <span className="text-xl font-bold text-white">HMSI</span>
+            <div className="relative w-24 h-24 mx-auto">
+              <Image src="/logo-hmsi.png" alt="HMSI Logo" fill className="object-contain" />
             </div>
           </Link>
           <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">Admin Portal</h1>
