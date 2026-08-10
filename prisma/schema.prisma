@@ -7,189 +7,129 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// ==========================================
-// ENUMS
-// ==========================================
-enum UserRole {
-  SUPERADMIN
-  ADMIN
-}
-
-enum DivisionRole {
-  INTI
-  NON_INTI
-}
-
-enum MemberRole {
-  KADIV
-  STAFF
-  SEKBEN
-  SEKRETARIS
-  BENDAHARA
-  KAHIM
-}
-
-enum ImageType {
-  MAIN
-  PERSON
-}
-
-// ==========================================
-// MODELS / TABLES
-// ==========================================
-
 model User {
-  userId    Int      @id @default(autoincrement()) @map("user_id")
-  username  String   @unique
-  password  String
-  role      UserRole
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relasi Child
-  divisi Divisi[]
+  userId   Int        @id @default(autoincrement()) @map("user_id")
+  name     String
+  password String
+  status   StatusUser @default(Active)
+  created  DateTime   @default(now())
+  edited   DateTime   @updatedAt
 
   @@map("user")
 }
 
-model Periode {
-  periodeId Int      @id @default(autoincrement()) @map("periode_id")
-  periode   String   // Contoh: "2025/2026"
-  status    Boolean  @default(false) // 0 = non aktif, 1 = aktif
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+enum StatusUser {
+  Active
+  Maintenance
+}
 
-  // Relasi Child
+model Periode {
+  periodeId     Int           @id @default(autoincrement()) @map("periode_id")
+  periode       String
+  status        StatusPeriode @default(Active)
+  gambarPeriode String?       @map("gambar_periode")
+  created       DateTime      @default(now())
+  edited        DateTime      @updatedAt
+
   divisi Divisi[]
 
   @@map("periode")
 }
 
 model Divisi {
-  divisiId     Int          @id @default(autoincrement()) @map("divisi_id")
-  userId       Int          @map("user_id")
-  periodeId    Int          @map("periode_id")
-  namaDivisi   String       @map("nama_divisi")
-  divisionRole DivisionRole @map("division_role")
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  divisiId      Int        @id @default(autoincrement()) @map("divisi_id")
+  periodeId     Int        @map("periode_id")
+  divisiName    String     @map("divisi_name")
+  gambarDivisi  String?    @map("gambar_divisi")
+  tentangDivisi String?    @map("tentang_divisi") @db.Text
+  created       DateTime   @default(now())
+  edited        DateTime   @updatedAt
 
-  // Relasi Parent
-  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  periode Periode @relation(fields: [periodeId], references: [periodeId], onDelete: Cascade)
-
-  // Relasi Child
-  anggotaDivisi AnggotaDivisi[]
-  divisiGambar  DivisiGambar[]
-  post          Post[]
-  proker        Proker[] // Menghubungkan Divisi ke Program Kerja
+  periode  Periode    @relation(fields: [periodeId], references: [periodeId], onDelete: Cascade)
+  pengurus Pengurus[]
+  proker   Proker[]
 
   @@map("divisi")
 }
 
-model AnggotaDivisi {
-  anggotaId Int        @id @default(autoincrement()) @map("anggota_id")
-  divisiId  Int        @map("divisi_id")
-  name      String
-  role      MemberRole
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+enum RolePengurus {
+  Ketua_Himpunan              @map("Ketua Himpunan")
+  Wakil_Ketua_Himpunan        @map("Wakil Ketua Himpunan")
+  Sekretaris_Umum             @map("Sekretaris Umum")
+  Bendahara_Umum              @map("Bendahara Umum")
+  Kepala_Divisi               @map("Kepala Divisi")
+  Sekretaris_Divisi           @map("Sekretaris Divisi")
+  Bendahara_Divisi            @map("Bendahara Divisi")
+  Sekretaris_Bendahara_Divisi @map("Sekretaris Bendahara Divisi")
+  Staf_Divisi                 @map("Staf Divisi")
+}
 
-  // Relasi Parent
-  divisi Divisi @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
+enum StatusPeriode {
+  Active
+  Non_Active @map("Non Active")
+}
 
-  // Relasi Child
-  prokerAnggota ProkerAnggota[]
+model Pengurus {
+  pengurusId     Int          @id @default(autoincrement()) @map("pengurus_id")
+  divisiId       Int          @map("divisi_id")
+  role           RolePengurus
+  pengurusName   String       @map("pengurus_name")
+  nim            String
+  nomorAnggota   String       @map("nomor_anggota")
+  gambarPengurus String       @map("gambar_pengurus")
+  created        DateTime     @default(now())
+  edited         DateTime     @updatedAt
 
-  @@map("anggota_divisi")
+  divisi         Divisi           @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
+  pengurusProker PengurusProker[]
+
+  @@map("pengurus")
 }
 
 model Proker {
   prokerId   Int      @id @default(autoincrement()) @map("proker_id")
-  divisiId   Int      @map("divisi_id") // Foreign key agar tahu proker ini milik divisi mana
-  judul      String
-  keterangan String   @db.Text      
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  divisiId   Int      @map("divisi_id")
+  prokerName String   @map("proker_name")
+  deskripsi  String   @db.Text
+  created    DateTime @default(now())
+  edited     DateTime @updatedAt
 
-  // Relasi Parent
-  divisi Divisi @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
-
-  // Relasi Child
-  prokerAnggota ProkerAnggota[]
+  divisi         Divisi           @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
+  pengurusProker PengurusProker[]
 
   @@map("proker")
 }
 
-// --- JUNCTION TABLE BARU ---
-model ProkerAnggota {
-  anggotaId Int      @map("anggota_id")
-  prokerId  Int      @map("proker_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model PengurusProker {
+  pengurusId Int      @map("pengurus_id")
+  prokerId   Int      @map("proker_id")
+  created    DateTime @default(now())
+  edited     DateTime @updatedAt
 
-  // Relasi Parent
-  anggota AnggotaDivisi @relation(fields: [anggotaId], references: [anggotaId], onDelete: Cascade)
-  proker  Proker        @relation(fields: [prokerId], references: [prokerId], onDelete: Cascade)
+  pengurus Pengurus @relation(fields: [pengurusId], references: [pengurusId], onDelete: Cascade)
+  proker   Proker   @relation(fields: [prokerId], references: [prokerId], onDelete: Cascade)
 
-  @@id([anggotaId, prokerId])
-  @@map("proker_anggota")
-}
-
-model Gambar {
-  gambarId  Int      @id @default(autoincrement()) @map("gambar_id")
-  fileName  String   @map("file_name")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relasi Child
-  divisiGambar DivisiGambar[]
-  postGambar   PostGambar[]
-
-  @@map("gambar")
-}
-
-model DivisiGambar {
-  divisiId  Int       @map("divisi_id")
-  gambarId  Int       @map("gambar_id")
-  type      ImageType
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-
-  // Relasi Parent
-  divisi Divisi @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
-  gambar Gambar @relation(fields: [gambarId], references: [gambarId], onDelete: Cascade)
-
-  @@id([divisiId, gambarId])
-  @@map("divisi_gambar")
+  @@id([pengurusId, prokerId])
+  @@map("pengurus_proker")
 }
 
 model Post {
-  postId    Int      @id @default(autoincrement()) @map("post_id")
-  divisiId  Int      @map("divisi_id")
-  caption   String   @db.Text
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relasi Parent
-  divisi Divisi @relation(fields: [divisiId], references: [divisiId], onDelete: Cascade)
-
-  // Relasi Child
-  postGambar PostGambar[]
+  postId      Int      @id @default(autoincrement()) @map("post_id")
+  title       String
+  description String   @db.Text
+  gambar      String
+  created     DateTime @default(now())
+  edited      DateTime @updatedAt
 
   @@map("post")
 }
 
-model PostGambar {
-  postId    Int      @map("post_id")
-  gambarId  Int      @map("gambar_id")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+model Saran {
+  saranId Int      @id @default(autoincrement()) @map("saran_id")
+  saran   String   @db.Text
+  gambar  String?
+  created DateTime @default(now())
+  edited  DateTime @updatedAt
 
-  // Relasi Parent
-  post   Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
-  gambar Gambar @relation(fields: [gambarId], references: [gambarId], onDelete: Cascade)
-
-  @@id([postId, gambarId])
-  @@map("post_gambar")
+  @@map("saran")
 }

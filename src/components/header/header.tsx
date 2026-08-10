@@ -9,9 +9,12 @@ export default function Header() {
     const pathname = usePathname();
 
     const navLinks = [
-        { name: "HOME", href: "/#hero" }, // Pastikan section hero di page.tsx memiliki id="hero"
+        { name: "HOME", href: "/#home" }, 
         { name: "PROFILE", href: "/#profile" },
         { name: "DIVISI", href: "/#divisi" },
+        { name: "GALLERY", href: "/#gallery" },
+        { name: "KRITIK & SARAN", href: "/#saran" },
+        { name: "ALUMNI", href: "/alumni" },
     ];
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {

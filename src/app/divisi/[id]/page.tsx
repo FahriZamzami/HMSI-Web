@@ -1,140 +1,151 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import Header from "@/components/header/header";
+import { useState, useEffect, use } from "react";
 import Footer from "@/components/footer/footer";
+import Link from "next/link";
+import { FaArrowLeft } from "react-icons/fa";
 
-// --- DATA POLOS KHUSUS PSSDM ---
-const PSSDM_INFO = {
-    name: "PSSDM",
-    fullName: "Pengembangan Skill dan Sumber Daya Manusia",
-    heroImg: "/4.jpg", 
-};
+export default function PublicDivisiPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params);
 
-const MEMBERS_DATA = [
-    { 
-        id: 1, 
-        name: "Revin Pahlevi", 
-        role: "Kepala Divisi", 
-        img: "/divisi/pssdm/revin.jpg", 
-    },
-    { 
-        id: 2, 
-        name: "Naila Muthia Danisha", 
-        role: "Sekretaris Bendahara", 
-        img: "/divisi/pssdm/naila.jpg", 
-    },
-    { 
-        id: 3, 
-        name: "Rahil Akram Hammad", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/rahil.jpg", 
-    },
-    { 
-        id: 4, 
-        name: "Fahri Zamzami", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/fahri.jpg", 
-    },
-    { 
-        id: 5, 
-        name: "Farrah Aulia", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/aul.jpg", 
-    },
-    { 
-        id: 6, 
-        name: "Febiola Ramli", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/febi.jpg", 
-    },
-    { 
-        id: 7, 
-        name: "Ahmad Iqbal Ramadhan", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/iqbal.jpg", 
-    },
-    { 
-        id: 8, 
-        name: "Ikhsan Pratama", 
-        role: "Staff PSSDM", 
-        img: "/divisi/pssdm/ikhsan.jpg", 
-    },
-];
+    const [isLoading, setIsLoading] = useState(true);
+    const [divisiData, setDivisiData] = useState<any>(null);
+    const [selectedMember, setSelectedMember] = useState<any>(null);
+    const [activeProker, setActiveProker] = useState<any>(null);
 
-const PROKER_DATA = [
-    { 
-        id: "PRK-PSD-01", 
-        title: "UPGRADING FUNCTIONARY", 
-        desc: "Pelatihan intensif hardskill dan softskill yang dirancang khusus untuk meningkatkan kapabilitas teknis maupun manajerial seluruh pengurus aktif HMSI.",
-        pj: "Fahri Zamzami"
-    },
-    { 
-        id: "PRK-PSD-02", 
-        title: "LKMM-TD (Latihan Kepemimpinan)", 
-        desc: "Wadah pelatihan manajemen dan kepemimpinan tingkat dasar bagi mahasiswa Sistem Informasi sebagai gerbang awal regenerasi kepengurusan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-03", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-04", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-05", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-06", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-07", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
-    },
-    { 
-        id: "PRK-PSD-08", 
-        title: "HMSI SHARING & BONDING", 
-        desc: "Agenda kasual berkala yang memfasilitasi evaluasi sehat, sharing session antar-divisi, serta fun games guna mempererat rasa kekeluargaan.",
-        pj: "BUdi"
+    // Hierarki jabatan untuk pengurutan (dari tertinggi ke terendah)
+    const roleOrder = [
+        "ketua himpunan",
+        "wakil ketua himpunan",
+        "sekretaris umum",
+        "bendahara umum",
+        "kepala divisi",
+        "sekretaris divisi",
+        "bendahara divisi",
+        "sekretaris bendahara divisi",
+        "staf divisi",
+    ];
+
+    const getRoleString = (p: any) => {
+        const raw = (p?.jabatan || p?.posisi || p?.role || p?.title || p?.pengurusRole || p?.pengurusJabatan || "").toString().toLowerCase();
+        const clean = raw.replace(/[._\-]/g, " ").replace(/\s+/g, " ").trim();
+
+        const map: { [k: string]: string } = {
+            ketua: "ketua himpunan",
+            "ketua himpunan": "ketua himpunan",
+            chair: "ketua himpunan",
+            wakil: "wakil ketua himpunan",
+            "wakil ketua": "wakil ketua himpunan",
+            "wakil ketua himpunan": "wakil ketua himpunan",
+            sekum: "sekretaris umum",
+            "sekretaris umum": "sekretaris umum",
+            sekretaris: "sekretaris umum",
+            bendahara: "bendahara umum",
+            "bendahara umum": "bendahara umum",
+            "kepala divisi": "kepala divisi",
+            kepala: "kepala divisi",
+            "sekretaris divisi": "sekretaris divisi",
+            "bendahara divisi": "bendahara divisi",
+            "sekretaris bendahara divisi": "sekretaris bendahara divisi",
+            staf: "staf divisi",
+            "staf divisi": "staf divisi"
+        };
+
+        if (map[clean]) return map[clean];
+        for (const k of Object.keys(map)) {
+            if (clean.includes(k)) return map[k];
+        }
+        return clean;
+    };
+
+    const sortPengurus = (list: any[] = []) => {
+        if (!Array.isArray(list)) return [];
+        return [...list].sort((a, b) => {
+            const ra = getRoleString(a);
+            const rb = getRoleString(b);
+            const ia = roleOrder.indexOf(ra);
+            const ib = roleOrder.indexOf(rb);
+            if (ia === -1 && ib === -1) return 0;
+            if (ia === -1) return 1;
+            if (ib === -1) return -1;
+            return ia - ib;
+        });
+    };
+
+    useEffect(() => {
+        const fetchDivisi = async () => {
+            setIsLoading(true);
+            try {
+                const res = await fetch("/api/public", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "get_divisi_detail", payload: { divisiId: id } })
+                });
+                const data = await res.json();
+                
+                if (res.ok && data.data) {
+                    // sort pengurus berdasarkan hirarki sebelum menyimpan
+                    const sorted = sortPengurus(data.data.pengurus || []);
+                    const payload = { ...data.data, pengurus: sorted };
+                    setDivisiData(payload);
+                    if (sorted && sorted.length > 0) {
+                        setSelectedMember(sorted[0]);
+                    }
+                    if (data.data.proker && data.data.proker.length > 0) {
+                        setActiveProker(data.data.proker[0]);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch divisi detail", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchDivisi();
+        }
+    }, [id]);
+
+    if (isLoading) {
+        return <div className="h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
     }
-];
 
-export default function PssdmPage() {
-    const [selectedMember, setSelectedMember] = useState(MEMBERS_DATA[0]);
-    const [activeProker, setActiveProker] = useState(PROKER_DATA[0]);
+    if (!divisiData) {
+        return (
+            <div className="h-screen bg-black flex flex-col items-center justify-center text-white">
+                <h1 className="text-3xl font-bold mb-4">Divisi Tidak Ditemukan</h1>
+                <Link href="/" className="text-orange-400 hover:underline">Kembali ke Beranda</Link>
+            </div>
+        );
+    }
 
     return (
         <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black text-white font-sans selection:bg-orange-400/30 no-scrollbar scroll-smooth">
-        
-        {/* 2. GUNAKAN KOMPONEN HEADER DI AWAL KONTEN */}
-        <Header />
 
-        {/* --- SECTION 1: HERO PSSDM --- */}
-        <section id="hero-pssdm" className="relative h-screen w-full snap-start overflow-hidden bg-black flex flex-col">
+        {/* Tombol Kembali (Opsional, melayang) */}
+        <Link href="/#divisi" className="fixed top-10 left-8 z-50 p-3 bg-black/50 border border-white/10 rounded-full hover:bg-orange-400 hover:text-black transition-colors backdrop-blur-md hidden md:flex items-center justify-center">
+            <FaArrowLeft />
+        </Link>
+
+        {/* Logo removed from fixed position; will be placed per-section */}
+
+        {/* --- SECTION 1: HERO DIVISI --- */}
+        <section id="hero-divisi" className="relative h-screen w-full snap-start overflow-hidden bg-black flex flex-col">
             {/* Background Image Statis */}
             <div className="absolute inset-0 z-0">
-            <Image 
-                src={PSSDM_INFO.heroImg} 
-                alt={PSSDM_INFO.name} 
-                fill 
-                className="object-cover" 
-                priority 
-            />
+            {divisiData.gambarDivisi ? (
+                <Image 
+                    src={`/uploads/${divisiData.gambarDivisi}`} 
+                    alt={divisiData.divisiName} 
+                    fill 
+                    className="object-cover" 
+                    priority 
+                />
+            ) : (
+                <div className="absolute inset-0 bg-[#050505]" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/70"></div>
             </div>
 
@@ -142,13 +153,10 @@ export default function PssdmPage() {
             <div className="relative z-10 flex-1 flex flex-col items-center justify-center lg:items-start lg:justify-end px-6 lg:px-12 lg:pl-24 lg:pb-24">
             <div className="text-center lg:text-left max-w-4xl">
                 <span className="text-orange-400 font-mono text-[10px] md:text-xs tracking-[0.5em] block mb-4">
-                DIVISION_PROFILE // {PSSDM_INFO.name}
+                DIVISION_PROFILE // {divisiData.periode?.periode}
                 </span>
                 <h1 className="text-6xl md:text-8xl lg:text-9xl font-black italic tracking-tighter leading-[0.8] text-white uppercase drop-shadow-2xl">
-                {PSSDM_INFO.name} <br /> 
-                <span className="text-orange-400 text-3xl md:text-5xl lg:text-6xl not-italic font-light tracking-wide block mt-4">
-                    {PSSDM_INFO.fullName}
-                </span>
+                {divisiData.divisiName}
                 </h1>
             </div>
             </div>
@@ -162,15 +170,56 @@ export default function PssdmPage() {
                 <div className="flex-1 h-px bg-gradient-to-r from-orange-400/20 to-transparent"></div>
             </div>
             </div>
+
+            {/* Section-specific logo (bottom-right) */}
+            <div className="absolute bottom-6 right-6 z-20 pointer-events-none opacity-50 hidden md:block mix-blend-screen">
+                <Image src="/logo-hmsi.png" alt="HMSI Logo" width={60} height={60} className="object-contain filter grayscale transition-all duration-500" />
+            </div>
         </section>
 
-        {/* --- SECTION 2: ANGGOTA DIVISI (Immersive Character Focus UI) --- */}
+        {/* --- SECTION 1.5: TENTANG DIVISI --- */}
+        <section id="tentang" className="relative min-h-[50vh] w-full snap-start bg-[#0a0a0a] flex flex-col items-center justify-center py-24 overflow-hidden border-t border-white/5">
+                    {/* Grid background for about section */}
+                    <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+                    <div className="max-w-4xl mx-auto px-6 md:px-12 text-center relative z-10 space-y-8 md:space-y-12">
+                <div className="space-y-2">
+                    <span className="text-orange-400 font-mono text-[10px] md:text-xs tracking-[0.5em] block uppercase">
+                        ABOUT // {divisiData.divisiName}
+                    </span>
+                    <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase text-white">
+                        Tentang Divisi
+                    </h2>
+                </div>
+                
+                <div className="relative inline-block text-left md:text-center">
+                    {/* Ornamen kutipan */}
+                    <div className="absolute -top-8 -left-4 md:-top-12 md:-left-8 text-7xl md:text-9xl text-white/5 font-serif leading-none select-none pointer-events-none">"</div>
+                    
+                    <p className="text-sm md:text-base lg:text-lg text-neutral-300 font-mono leading-relaxed lg:leading-loose max-w-3xl whitespace-pre-wrap relative z-10">
+                        {divisiData.tentangDivisi || "Deskripsi divisi belum tersedia."}
+                    </p>
+                    
+                    <div className="absolute -bottom-16 -right-4 md:-bottom-24 md:-right-8 text-7xl md:text-9xl text-white/5 font-serif leading-none select-none pointer-events-none rotate-180">"</div>
+                </div>
+            </div>
+
+            {/* Section-specific logo (bottom-right) */}
+            <div className="absolute bottom-6 right-6 z-20 pointer-events-none opacity-50 hidden md:block mix-blend-screen">
+                <Image src="/logo-hmsi.png" alt="HMSI Logo" width={50} height={50} className="object-contain filter grayscale transition-all duration-500" />
+            </div>
+        </section>
+
+        {/* --- SECTION 2: PENGURUS DIVISI (Immersive Character Focus UI) --- */}
         <section id="anggota" className="relative h-screen w-full snap-start bg-[#050505] flex items-center justify-center py-6 md:py-12 overflow-hidden border-t border-white/5 selection:bg-orange-400/20">
             
             {/* WATERMARK BACKGROUND */}
-            <div className="absolute inset-y-0 left-12 flex items-center text-white/[0.01] text-[15rem] font-black italic select-none pointer-events-none z-0 tracking-tighter">
-                PSSDM
+            <div className="absolute inset-y-0 left-12 flex items-center text-white/[0.01] text-[15rem] font-black italic select-none pointer-events-none z-0 tracking-tighter uppercase whitespace-nowrap">
+                {divisiData.divisiName}
             </div>
+
+            {/* Grid background for Pengurus section */}
+            <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
             <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
                 
@@ -187,12 +236,12 @@ export default function PssdmPage() {
                     <div className="space-y-2">
                         {/* Nama Besar Utama */}
                         <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase italic leading-[1.1] drop-shadow-md break-words max-w-xs">
-                            {selectedMember.name}
+                            {selectedMember ? selectedMember.pengurusName : "Belum Ada Pengurus"}
                         </h2>
 
                         {/* Jabatan / Role */}
                         <p className="text-orange-400 font-mono text-xs md:text-sm tracking-[0.2em] uppercase font-bold pt-1">
-                            {selectedMember.role}
+                            {selectedMember ? selectedMember.role.replace(/_/g, " ") : "N/A"}
                         </p>
                     </div>
 
@@ -221,15 +270,22 @@ export default function PssdmPage() {
 
                         {/* Elemen Frame Image Utama */}
                         <div className="relative w-full h-full overflow-hidden z-10 border border-white/5 bg-zinc-900">
-                            <Image 
-                                src={selectedMember.img} 
-                                alt={selectedMember.name}
-                                fill
-                                // PERBAIKAN 1: Menurunkan opacity ke 75% (atau gunakan opacity-80) agar menyatu dengan background gelap
-                                className="object-cover object-top opacity-80 transition-all duration-700 ease-out scale-[1.01] group-hover/artwork:scale-[1.03]"
-                                priority
-                            />
-                            {/* PERBAIKAN 2: Mempertebal lapisan gradasi gelap di bagian bawah gambar (dari opacity-40 ke opacity-80) */}
+                            {selectedMember?.gambarPengurus ? (
+                                <Image 
+                                    src={`/uploads/${selectedMember.gambarPengurus}`} 
+                                    alt={selectedMember.pengurusName}
+                                    fill
+                                    unoptimized
+                                    quality={100}
+                                    className="object-cover object-top opacity-80 transition-all duration-700 ease-out scale-[1.01] group-hover/artwork:scale-[1.03]"
+                                    priority
+                                />
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600">
+                                    <span className="text-sm">Tidak ada foto</span>
+                                </div>
+                            )}
+                            {/* Mempertebal lapisan gradasi gelap di bagian bawah gambar */}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent opacity-80"></div>
                         </div>
 
@@ -247,20 +303,20 @@ export default function PssdmPage() {
                         <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-2">
                             <div className="text-left">
                                 <span className="text-[9px] font-mono tracking-[0.3em] text-orange-400 block">SELECT_</span>
-                                <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Anggota PSSDM</h4>
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-500">PENGURUS {divisiData.divisiName}</h4>
                             </div>
                             <span className="text-[10px] font-mono text-zinc-600">
-                                {String(selectedMember.id).padStart(2, '0')} / {String(MEMBERS_DATA.length).padStart(2, '0')}
-                            </span>
+                                    {selectedMember ? String((divisiData.pengurus.findIndex((p: any) => p.pengurusId === selectedMember.pengurusId) + 1)).padStart(2, '0') : "00"} / {String(divisiData.pengurus?.length || 0).padStart(2, '0')}
+                                </span>
                         </div>
 
                         {/* Grid List Thumbnails - Diperbesar dengan gap-3 dan max-h dinaikkan agar ruang atas bawah seimbang */}
                         <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-2 gap-3 overflow-y-auto max-h-[220px] lg:max-h-[560px] pr-1 no-scrollbar justify-center">
-                            {MEMBERS_DATA.map((member) => {
-                                const isActive = selectedMember.id === member.id;
+                            {divisiData.pengurus?.map((member: any) => {
+                                const isActive = selectedMember?.pengurusId === member.pengurusId;
                                 return (
                                     <button
-                                        key={member.id}
+                                        key={member.pengurusId}
                                         onClick={() => setSelectedMember(member)}
                                         className={`relative w-full aspect-square border transition-all duration-300 group overflow-hidden rounded-sm bg-zinc-900 ${
                                             isActive 
@@ -270,15 +326,21 @@ export default function PssdmPage() {
                                     >
                                         {/* Gambar Mini List */}
                                         <div className="absolute inset-0 w-full h-full">
-                                            <Image  
-                                                src={member.img}  
-                                                alt={member.name}  
-                                                fill  
-                                                sizes="(max-width: 150px) 100vw"
-                                                className={`object-cover object-top transition-all duration-500 group-hover:scale-105 ${
-                                                    isActive ? "grayscale-0 opacity-100" : "grayscale opacity-45 group-hover:opacity-90 group-hover:grayscale-0"
-                                                }`}
-                                            />
+                                            {member.gambarPengurus ? (
+                                                <Image  
+                                                    src={`/uploads/${member.gambarPengurus}`}  
+                                                    alt={member.pengurusName}  
+                                                    fill  
+                                                    sizes="(max-width: 150px) 100vw"
+                                                    className={`object-cover object-top transition-all duration-500 group-hover:scale-105 ${
+                                                        isActive ? "grayscale-0 opacity-100" : "grayscale opacity-45 group-hover:opacity-90 group-hover:grayscale-0"
+                                                    }`}
+                                                />
+                                            ) : (
+                                                <div className={`w-full h-full bg-zinc-800 flex items-center justify-center transition-all ${isActive ? "opacity-100" : "opacity-45 group-hover:opacity-90"}`}>
+                                                    <span className="text-[10px] text-zinc-500 font-mono font-bold">NO IMG</span>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Garis Aktif */}
@@ -286,21 +348,17 @@ export default function PssdmPage() {
                                             <div className="absolute left-0 top-0 w-1 h-full bg-orange-400 z-20"></div>
                                         )}
 
-                                        {/* 
-                                        PERBAIKAN SHADOW OVERLAY:
-                                        Menggunakan multi-stop gradient (transparent -> black/40 -> black/80 -> black) 
-                                        untuk menciptakan efek pemudaran warna gelap yang jauh lebih smooth di bagian bawah gambar.
-                                        */}
+                                        {/* Menggunakan multi-stop gradient (transparent -> black/40 -> black/80 -> black) */}
                                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/70 to-transparent pt-12 pb-3 px-2.5 text-left z-10 pointer-events-none flex flex-col justify-end min-h-[60%]">
                                             
-                                            {/* PERBAIKAN NAMA: Menampilkan nama lengkap, teks membungkus rapi, tanpa split */}
+                                            {/* Menampilkan nama lengkap, teks membungkus rapi, tanpa split */}
                                             <p className="text-[10px] lg:text-[11px] font-bold text-white uppercase tracking-tight leading-tight break-words line-clamp-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                                                {member.name}
+                                                {member.pengurusName}
                                             </p>
                                             
-                                            {/* PERBAIKAN JABATAN: Menampilkan jabatan lengkap, tanpa split */}
+                                            {/* Menampilkan jabatan lengkap, tanpa split */}
                                             <p className="text-[7.5px] lg:text-[8px] font-mono text-zinc-400 uppercase tracking-tighter mt-1 leading-tight break-words drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">
-                                                {member.role}
+                                                {member.role.replace(/_/g, " ")}
                                             </p>
                                             
                                         </div>
@@ -313,6 +371,11 @@ export default function PssdmPage() {
                 </div>
 
             </div>
+
+            {/* Section-specific logo (bottom-right) */}
+            <div className="absolute bottom-6 right-6 z-20 pointer-events-none opacity-50 hidden md:block mix-blend-screen">
+                <Image src="/logo-hmsi.png" alt="HMSI Logo" width={50} height={50} className="object-contain filter grayscale transition-all duration-500" />
+            </div>
         </section>
 
         {/* --- SECTION 3: PROGRAM KERJA (Arknights Inspired Split UI) --- */}
@@ -323,12 +386,15 @@ export default function PssdmPage() {
                 PROJECTS
             </div>
 
+            {/* Grid background for Proker section */}
+            <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
             <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 flex flex-col justify-center space-y-8 relative z-10">
                 
                 {/* Section Header */}
                 <div className="text-center lg:text-left space-y-1">
-                    <span className="text-orange-400 font-mono text-[9px] md:text-xs tracking-[0.5em] block">
-                        PSSDM // PROJECT_LIST
+                    <span className="text-orange-400 font-mono text-[9px] md:text-xs tracking-[0.5em] block uppercase">
+                        {divisiData.divisiName} // PROJECT_LIST
                     </span>
                     <h3 className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase leading-none">
                         Program Kerja
@@ -354,32 +420,40 @@ export default function PssdmPage() {
                                 {/* ID & Kategori Proker */}
                                 <div className="flex items-center gap-3">
                                     <span className="text-orange-400 font-mono text-sm tracking-widest font-bold">
-                                        {activeProker.id}
+                                        {activeProker ? `PRK-${String(activeProker.prokerId).padStart(3, '0')}` : "PRK-000"}
                                     </span>
                                 </div>
 
                                 {/* Judul Besar Proker */}
                                 <h4 className="text-2xl md:text-4xl font-black tracking-tight text-white uppercase italic leading-tight transition-all duration-300">
-                                    {activeProker.title}
+                                    {activeProker ? activeProker.prokerName : "Belum Ada Program Kerja"}
                                 </h4>
                             </div>
 
                             {/* Deskripsi Panjang */}
                             <div className="space-y-1">
                                 <span className="text-[9px] font-mono tracking-[0.2em] text-zinc-600 block uppercase">Description_</span>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light max-w-2xl">
-                                    {activeProker.desc}
+                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light max-w-2xl break-words whitespace-pre-wrap">
+                                    {activeProker ? activeProker.deskripsi : "-"}
                                 </p>
                             </div>
                         </div>
 
                         {/* Bagian Bawah: Penanggung Jawab (PJ) */}
                         <div className="border-t border-white/10 pt-4 mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="space-y-0.5">
+                            <div className="space-y-1">
                                 <span className="text-[9px] font-mono tracking-[0.2em] text-orange-400/60 block uppercase">Person_In_Charge</span>
-                                <p className="text-white font-medium tracking-wide text-sm uppercase">
-                                    {activeProker.pj}
-                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {activeProker && activeProker.pengurusProker && activeProker.pengurusProker.length > 0 ? (
+                                        activeProker.pengurusProker.map((pp: any) => (
+                                            <span key={pp.pengurusId} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-white font-medium text-xs">
+                                                {pp.pengurus.pengurusName}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="text-zinc-500 font-medium text-xs italic">Belum ada PIC</span>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Ornamen Geometris Samping Kiri */}
@@ -393,23 +467,20 @@ export default function PssdmPage() {
                     {/* ================= SISI KANAN (5 Kolom): List Selector Judul Proker ================= */}
                     <div className="lg:col-span-5 flex flex-col space-y-3 justify-start max-h-[350px] lg:max-h-[500px] overflow-y-auto pr-1 no-scrollbar relative">
                         
-                        {/* PERBAIKAN HEADER: 
-                        Menambahkan class 'sticky top-0 z-20' agar tetap diam di tempat saat di-scroll,
-                        serta 'bg-[#050505]' atau 'bg-[#111]' untuk menutupi daftar proker yang tergulung ke bawahnya.
-                        */}
+                        {/* Menambahkan class 'sticky top-0 z-20' agar tetap diam di tempat saat di-scroll */}
                         <div className="sticky top-0 z-20 bg-[#111] border-b-2 border-orange-400 p-3 flex justify-between items-center shrink-0 mb-1">
                             <span className="text-[10px] font-mono tracking-[0.2em] text-orange-400 font-bold uppercase">▼ SELECT_PROJECT</span>
                             <span className="text-[10px] font-mono text-zinc-500">
-                                {String(PROKER_DATA.length).padStart(2, '0')} TOTAL
+                                {String(divisiData.proker?.length || 0).padStart(2, '0')} TOTAL
                             </span>
                         </div>
 
                         {/* Looping List Item Button */}
-                        {PROKER_DATA.map((proker) => {
-                            const isSelected = activeProker.id === proker.id;
+                        {divisiData.proker?.map((proker: any) => {
+                            const isSelected = activeProker?.prokerId === proker.prokerId;
                             return (
                                 <button
-                                    key={proker.id}
+                                    key={proker.prokerId}
                                     onClick={() => setActiveProker(proker)}
                                     className={`w-full text-left p-4 flex items-center justify-between border transition-all duration-300 relative group/btn shrink-0 ${
                                         isSelected
@@ -417,14 +488,14 @@ export default function PssdmPage() {
                                             : "bg-zinc-950/80 text-white border-white/5 hover:border-white/20 hover:bg-zinc-900"
                                     }`}
                                 >
-                                    <div className="flex flex-col gap-0.5 flex-1 pr-4">
+                                    <div className="flex flex-col gap-0.5 flex-1 pr-4 min-w-0">
                                         {/* Sub-info ID kecil */}
                                         <span className={`font-mono text-[9px] tracking-wider ${isSelected ? 'text-black/60' : 'text-zinc-500'}`}>
-                                            {proker.id}
+                                            PRK-{String(proker.prokerId).padStart(3, '0')}
                                         </span>
                                         {/* Judul Proker di List */}
-                                        <span className="text-xs md:text-sm tracking-wide uppercase font-black italic truncate max-w-xs">
-                                            {proker.title}
+                                        <span className="text-xs md:text-sm tracking-wide uppercase font-black italic truncate max-w-xs break-words">
+                                            {proker.prokerName}
                                         </span>
                                     </div>
 
@@ -450,13 +521,18 @@ export default function PssdmPage() {
 
                 </div>
             </div>
+
+            {/* Section-specific logo (bottom-right) */}
+            <div className="absolute bottom-6 right-6 z-20 pointer-events-none opacity-50 hidden md:block mix-blend-screen">
+                <Image src="/logo-hmsi.png" alt="HMSI Logo" width={50} height={50} className="object-contain filter grayscale transition-all duration-500" />
+            </div>
         </section>
 
         {/* 3. GUNAKAN KOMPONEN FOOTER DI AKHIR KONTEN */}
         <Footer />
 
         {/* --- STYLE INJECTION (Menghilangkan Scrollbar Lobby Style) --- */}
-        <style jsx>{`
+        <style jsx global>{`
             ::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         `}</style>
