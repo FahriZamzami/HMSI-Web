@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 // Rute yang butuh perlindungan login
 const protectedRoutes = ["/admin"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isProtectedRoute = protectedRoutes.some((route) => path.startsWith(route));
   const isLoginRoute = path === "/login";

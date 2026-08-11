@@ -15,7 +15,6 @@ interface Pengurus {
   pengurusId: number;
   role: string;
   pengurusName: string;
-  nim: string;
   nomorAnggota: string;
   gambarPengurus: string;
 }
@@ -55,7 +54,7 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
   const [pengurusMode, setPengurusMode] = useState<"create" | "edit">("create");
   const [selectedPengurus, setSelectedPengurus] = useState<Pengurus | null>(null);
   const [formPengurus, setFormPengurus] = useState({
-    pengurusName: "", role: "Staf Divisi", nim: "", nomorAnggota: ""
+    pengurusName: "", role: "Staf Divisi", nomorAnggota: ""
   });
   const [formGambarPengurus, setFormGambarPengurus] = useState<File | null>(null);
   const [previewPengurusUrl, setPreviewPengurusUrl] = useState<string | null>(null);
@@ -142,7 +141,7 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
   const openCreatePengurus = () => {
     setPengurusMode("create");
     setSelectedPengurus(null);
-    setFormPengurus({ pengurusName: "", role: "Staf Divisi", nim: "", nomorAnggota: "" });
+    setFormPengurus({ pengurusName: "", role: "Staf Divisi", nomorAnggota: "" });
     setFormGambarPengurus(null);
     setPreviewPengurusUrl(null);
     setErrorPengurus("");
@@ -155,11 +154,10 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
     setFormPengurus({
       pengurusName: p.pengurusName,
       role: p.role,
-      nim: p.nim,
       nomorAnggota: p.nomorAnggota
     });
     setFormGambarPengurus(null);
-    setPreviewPengurusUrl(`/uploads/${p.gambarPengurus}`);
+    setPreviewPengurusUrl(p.gambarPengurus ? `/uploads/${p.gambarPengurus}` : null);
     setErrorPengurus("");
     setIsModalPengurusOpen(true);
   };
@@ -179,7 +177,6 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
       
       formData.append("pengurusName", formPengurus.pengurusName);
       formData.append("role", formPengurus.role);
-      formData.append("nim", formPengurus.nim);
       formData.append("nomorAnggota", formPengurus.nomorAnggota);
 
       if (formGambarPengurus) formData.append("file", formGambarPengurus);
@@ -329,7 +326,7 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
                 <div className="flex items-start gap-4 flex-1">
                   <div className="w-16 h-16 rounded-xl bg-neutral-900 overflow-hidden border border-neutral-700 flex-shrink-0">
                     {p.gambarPengurus ? (
-                      <img src={`/uploads/${p.gambarPengurus}`} alt={p.pengurusName} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" />
+                      <img src={`/uploads/${p.gambarPengurus}`} alt={p.pengurusName} className="w-full h-full object-cover transition-all duration-300" />
                     ) : (
                       <FaUserCircle className="w-full h-full p-2 text-neutral-600" />
                     )}
@@ -339,8 +336,7 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
                     <span className="inline-block mt-1 px-2 py-0.5 bg-neutral-800 text-orange-500 text-xs font-medium rounded border border-neutral-700">
                       {p.role}
                     </span>
-                    <p className="text-xs text-neutral-500 mt-2">NIM: {p.nim}</p>
-                    <p className="text-xs text-neutral-500">No. Anggota: {p.nomorAnggota}</p>
+                    <p className="text-xs text-neutral-500 mt-2">No. Anggota: {p.nomorAnggota}</p>
                   </div>
                 </div>
                 {/* Hover Actions */}
@@ -434,10 +430,17 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
             <form onSubmit={submitPengurus} className="p-6 space-y-4">
               {errorPengurus && <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">{errorPengurus}</div>}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-neutral-300">Nama Lengkap <span className="text-orange-500">*</span></label>
                   <input type="text" required value={formPengurus.pengurusName} onChange={e => setFormPengurus({...formPengurus, pengurusName: toTitleCase(e.target.value)})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-medium text-neutral-300">Nomor Anggota <span className="text-orange-500">*</span></label>
+                  <input type="text" required value={formPengurus.nomorAnggota} onChange={e => setFormPengurus({...formPengurus, nomorAnggota: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
                 </div>
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-neutral-300">Jabatan <span className="text-orange-500">*</span></label>
@@ -468,17 +471,6 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
                       return <option key={opt} value={opt}>{opt}</option>;
                     })}
                   </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-xs font-medium text-neutral-300">NIM <span className="text-orange-500">*</span></label>
-                  <input type="text" required value={formPengurus.nim} onChange={e => setFormPengurus({...formPengurus, nim: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-xs font-medium text-neutral-300">Nomor Anggota <span className="text-orange-500">*</span></label>
-                  <input type="text" required value={formPengurus.nomorAnggota} onChange={e => setFormPengurus({...formPengurus, nomorAnggota: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
                 </div>
               </div>
 

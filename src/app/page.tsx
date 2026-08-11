@@ -52,7 +52,7 @@ export default function Home() {
     ...baseDivisions, ...baseDivisions, ...baseDivisions, ...baseDivisions, ...baseDivisions,
   ];
 
-  const scrollRef = useRef(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const isTeleporting = useRef(false);
 
   useEffect(() => {
@@ -86,17 +86,9 @@ export default function Home() {
           }
 
           const bgs: string[] = [];
-          const gItems: any[] = [];
-
           if (data.data.gambarPeriode) {
             setHasPeriodeImage(true);
             bgs.push(`/uploads/${data.data.gambarPeriode}`);
-            gItems.push({
-              type: "periode",
-              img: `/uploads/${data.data.gambarPeriode}`,
-              title: `Periode ${data.data.periode}`,
-              description: null
-            });
           } else {
             setHasPeriodeImage(false);
           }
@@ -104,24 +96,6 @@ export default function Home() {
             data.data.divisi.forEach((d: any) => {
               if (d.gambarDivisi) {
                 bgs.push(`/uploads/${d.gambarDivisi}`);
-                gItems.push({
-                  type: "divisi",
-                  img: `/uploads/${d.gambarDivisi}`,
-                  title: d.divisiName,
-                  description: null
-                });
-              }
-            });
-          }
-          if (data.data.posts) {
-            data.data.posts.forEach((p: any) => {
-              if (p.gambar) {
-                gItems.push({
-                  type: "post",
-                  img: `/uploads/${p.gambar}`,
-                  title: p.title,
-                  description: p.description
-                });
               }
             });
           }
@@ -131,7 +105,6 @@ export default function Home() {
           } else {
             setDynamicBgImages([]);
           }
-          setGalleryItems(gItems);
 
         } else if (res.ok && data.data === null) {
           setIsMaintenance(true);
@@ -143,7 +116,24 @@ export default function Home() {
       }
     };
 
+    const fetchAllGallery = async () => {
+      try {
+        const res = await fetch("/api/public", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "get_all_gallery" })
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          setGalleryItems(data.data);
+        }
+      } catch (error) {
+        console.error("Gagal mengambil data gallery", error);
+      }
+    };
+
     fetchActivePeriode();
+    fetchAllGallery();
   }, []);
 
   useEffect(() => {
@@ -243,7 +233,7 @@ export default function Home() {
     }
   };
 
-  const scrollCarousel = (direction) => {
+  const scrollCarousel = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const el = scrollRef.current;
       const move = direction === "left" ? -350 : 350;
@@ -322,6 +312,7 @@ export default function Home() {
                     src={img}
                     alt={`Slide ${index}`}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover opacity-70"
                     priority={index === 0}
                   />
@@ -359,7 +350,7 @@ export default function Home() {
 
           {/* Logo Mobile diperbesar menjadi w-28 h-28 */}
           <div className="relative w-28 h-28 mb-8 lg:hidden">
-            <Image src="/logo-hmsi.png" alt="HMSI Logo" fill className="object-contain" />
+            <Image src="/logo-hmsi.png" alt="HMSI Logo" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-contain" />
           </div>
 
           <div className="text-center lg:text-left pointer-events-none">
@@ -400,15 +391,19 @@ export default function Home() {
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid lg:grid-cols-2 gap-8 md:gap-16 items-center relative z-10">
 
-          {/* LOGO BOX DESKTOP: Tetap di kiri pada desktop */}
-          <div className="hidden lg:flex relative group justify-center items-center">
-            <div className="absolute inset-0 bg-black rounded-[40px] border border-orange-400 border-2 transition-transform duration-700" />
-            <div className="relative w-[450px] h-[450px]">
+          {/* LOGO BOX DESKTOP */}
+          <div className="hidden lg:flex relative group justify-center items-center w-full h-[500px]">
+            {/* Glassmorphism card back */}
+            <div className="absolute inset-4 bg-white/5 backdrop-blur-md rounded-[50px] border border-white/10 transition-all duration-700 shadow-[0_0_40px_rgba(0,0,0,0.5)]" />
+            
+            {/* Logo */}
+            <div className="relative w-[380px] h-[380px] drop-shadow-2xl transition-transform duration-1000 group-hover:scale-110 group-hover:-translate-y-4">
               <Image
                 src="/logo-hmsi.png"
                 alt="HMSI"
                 fill
-                className="object-contain transition-transform duration-1000 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain"
               />
             </div>
           </div>
@@ -426,18 +421,21 @@ export default function Home() {
               </h3>
             </div>
 
-            {/* LOGO BOX MOBILE: Sekarang berada DI ANTARA Header dan Deskripsi */}
-            <div className="relative group flex justify-center lg:hidden py-4">
-              <div className="absolute inset-0 bg-black rounded-[24px] border border-orange-400" />
-              <div className="relative w-40 h-40">
+            {/* LOGO BOX MOBILE */}
+            <div className="relative group flex justify-center lg:hidden py-8">
+              {/* Glassmorphism card back */}
+              <div className="absolute inset-4 bg-white/5 backdrop-blur-md rounded-[30px] border border-white/10" />
+
+              <div className="relative w-48 h-48 drop-shadow-2xl">
                 <Image
                   src="/logo-hmsi.png"
                   alt="HMSI"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-contain"
                 />
               </div>
-              <div className="absolute inset-0 flex items-center justify-center text-white/[0.01] font-black text-6xl italic select-none -z-10">
+              <div className="absolute inset-0 flex items-center justify-center text-white/[0.02] font-black text-6xl italic select-none pointer-events-none -z-10">
                 ABOUT
               </div>
             </div>
@@ -517,10 +515,12 @@ export default function Home() {
                           src={item.img}
                           alt={item.name}
                           fill
-                          className="object-contain p-4 grayscale group-hover:grayscale-0 transition-all duration-700"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-contain p-4 transition-all duration-700"
+                          unoptimized
                         />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-neutral-700 grayscale group-hover:grayscale-0 transition-all duration-700">
+                        <div className="w-full h-full flex flex-col items-center justify-center text-neutral-700 transition-all duration-700">
                           <span className="text-sm font-bold uppercase tracking-[0.3em]">No Image</span>
                         </div>
                       )}
@@ -548,44 +548,57 @@ export default function Home() {
       </section>
 
       {/* --- SECTION 4: GALLERY --- */}
-      <section id="gallery" className="relative min-h-screen w-full bg-[#050505] flex flex-col items-center justify-start py-20 px-6 md:px-12 snap-start border-t border-white/5 selection:bg-orange-400/20">
+      <section id="gallery" className="relative w-full h-screen bg-[#050505] flex flex-col items-center justify-center snap-start border-t border-white/5 selection:bg-orange-400/20 px-4 md:px-12 overflow-hidden pt-16 md:pt-20 pb-4">
         {/* Ornamen Background mirip Arknights (Dark Version) */}
         <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
-        <div className="text-center space-y-2 mb-12 relative z-10 w-full max-w-[1400px]">
-          <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-            Gallery
-          </h2>
-          <div className="flex justify-center items-center gap-4">
-            <div className="h-px w-16 bg-white/20"></div>
-            <span className="text-orange-400 font-mono text-xs tracking-[0.3em] uppercase drop-shadow-md">MOMENTS</span>
-            <div className="h-px w-16 bg-white/20"></div>
+        <div className="flex flex-col w-full h-full max-w-[1200px] justify-center relative z-10">
+          
+          {/* Header */}
+          <div className="text-center space-y-1 mb-4 md:mb-6">
+            <h2 className="text-3xl md:text-5xl font-black italic tracking-tighter uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              Gallery
+            </h2>
+            <div className="flex justify-center items-center gap-2 md:gap-4">
+              <div className="h-px w-12 md:w-16 bg-white/20"></div>
+              <span className="text-orange-400 font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase drop-shadow-md">MOMENTS</span>
+              <div className="h-px w-12 md:w-16 bg-white/20"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="relative z-10 w-full max-w-[1200px]">
+          {/* Grid Gallery */}
           {galleryItems.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {galleryItems.map((item, idx) => (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 w-full">
+              {galleryItems.slice(0, 6).map((item, idx) => (
                 <div
                   key={idx}
-                  className="group relative aspect-[4/3] bg-[#0a0a0a] overflow-hidden cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.2)] transition-all duration-300 border border-white/10 hover:border-orange-400/50"
+                  className="group relative aspect-video bg-[#0a0a0a] overflow-hidden cursor-pointer shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.2)] transition-all duration-300 border border-white/10 hover:border-orange-400/50"
                   onClick={() => setSelectedGalleryIndex(idx)}
                 >
-                  <Image src={item.img} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  <Image src={item.img} alt={item.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
 
                   {/* Title banner at bottom */}
-                  <div className="absolute inset-x-0 bottom-0 bg-black/90 backdrop-blur-md p-3 translate-y-0 border-t border-white/10 group-hover:border-orange-400/50 transition-colors duration-300">
-                    <h3 className="text-white group-hover:text-orange-400 transition-colors font-bold text-[10px] md:text-xs tracking-wide truncate uppercase">{item.title}</h3>
+                  <div className="absolute inset-x-0 bottom-0 bg-black/90 backdrop-blur-md p-2 translate-y-0 border-t border-white/10 group-hover:border-orange-400/50 transition-colors duration-300">
+                    <h3 className="text-white group-hover:text-orange-400 transition-colors font-bold text-[8px] md:text-xs tracking-wide truncate uppercase">{item.title}</h3>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-[50vh] text-white">
-              <span className="text-3xl font-bold uppercase tracking-widest opacity-20 text-zinc-500">No Pictures Yet</span>
+            <div className="flex flex-col items-center justify-center flex-1 text-white">
+              <span className="text-2xl md:text-3xl font-bold uppercase tracking-widest opacity-20 text-zinc-500">No Pictures Yet</span>
             </div>
           )}
+
+          {/* See More Button */}
+          {galleryItems.length > 0 && (
+            <div className="mt-4 md:mt-6 flex justify-center">
+              <Link href="/gallery" className="px-6 py-2 md:px-8 md:py-3 border border-orange-400 text-orange-400 font-bold uppercase text-[10px] md:text-xs tracking-[0.2em] hover:bg-orange-400 hover:text-black transition-colors duration-300">
+                See More
+              </Link>
+            </div>
+          )}
+
         </div>
       </section>
 
@@ -626,40 +639,36 @@ export default function Home() {
           )}
 
           <div
-            className="relative w-full max-w-6xl max-h-full bg-[#1e1e1e] rounded-md overflow-hidden flex flex-col md:flex-row shadow-2xl border border-white/10"
+            className="relative w-full max-w-6xl max-h-[90vh] bg-[#1e1e1e] rounded-md overflow-hidden flex flex-col md:flex-row shadow-2xl border border-white/10"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sisi Kiri: Gambar */}
-            <div className={`relative bg-black flex items-center justify-center ${selectedGalleryItem.description ? 'md:w-[65%]' : 'w-full'} h-[40vh] md:h-[80vh]`}>
+            <div className={`relative bg-black flex items-center justify-center ${selectedGalleryItem.type === 'post' ? 'md:w-[65%]' : 'w-full'} h-[40vh] md:h-[85vh]`}>
               <Image
                 src={selectedGalleryItem.img}
                 alt={selectedGalleryItem.title}
                 fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-contain"
                 unoptimized
               />
             </div>
 
-            {/* Sisi Kanan: Deskripsi (Hanya jika ada) */}
-            {selectedGalleryItem.description && (
-              <div className="w-full md:w-[35%] flex flex-col h-[40vh] md:h-[80vh] border-t md:border-t-0 md:border-l border-white/10 bg-[#0a0a0a]">
+            {/* Sisi Kanan: Deskripsi (Hanya untuk Post) */}
+            {selectedGalleryItem.type === 'post' && (
+              <div className="w-full md:w-[35%] flex flex-col h-[40vh] md:h-[85vh] border-t md:border-t-0 md:border-l border-white/10 bg-[#0a0a0a]">
                 {/* Header Kanan */}
                 <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-[#111]">
                   <div className="w-8 h-8 rounded-full bg-black overflow-hidden relative border border-white/10 shrink-0">
-                    <Image src="/logo-hmsi.png" alt="HMSI" fill className="object-contain p-1" />
+                    <Image src="/logo-hmsi.png" alt="HMSI" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-contain p-1" />
                   </div>
-                  <span className="font-bold text-sm text-white uppercase tracking-wider">{selectedGalleryItem.title}</span>
+                  <span className="font-bold text-sm text-white uppercase tracking-wider">Postingan HMSI</span>
                 </div>
                 {/* Scrollable Content */}
                 <div className="p-4 overflow-y-auto flex-1 no-scrollbar text-sm text-neutral-300">
-                  <div className="flex gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-black overflow-hidden relative shrink-0 border border-white/10 mt-1">
-                      <Image src="/logo-hmsi.png" alt="HMSI" fill className="object-contain p-1" />
-                    </div>
-                    <div>
-                      <span className="font-bold text-white mr-2 uppercase text-xs">{selectedGalleryItem.title}</span>
-                      <span className="whitespace-pre-wrap leading-relaxed">{selectedGalleryItem.description}</span>
-                    </div>
+                  <div className="mb-4">
+                    <span className="font-bold text-white block uppercase text-sm mb-1">{selectedGalleryItem.title}</span>
+                    <span className="whitespace-pre-wrap leading-relaxed block text-zinc-400 mt-2">{selectedGalleryItem.description}</span>
                   </div>
                 </div>
               </div>
@@ -718,23 +727,52 @@ export default function Home() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-mono tracking-widest text-white/40 uppercase">Lampiran Gambar (Opsional)</label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files.length > 0) {
-                        setSaranFile(e.target.files[0]);
-                      }
-                    }}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  <div className={`w-full bg-[#111] border ${saranFile ? 'border-orange-400/50 text-orange-400' : 'border-white/10 text-white/30'} border-dashed p-3 flex items-center justify-center transition-colors`}>
-                    <span className="text-xs font-mono tracking-wider truncate">
-                      {saranFile ? saranFile.name : "Klik atau seret gambar ke sini"}
-                    </span>
+                {!saranFile ? (
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          setSaranFile(e.target.files[0]);
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="w-full bg-[#111] border border-white/10 text-white/30 border-dashed p-4 flex flex-col items-center justify-center transition-colors hover:border-orange-400/50 hover:text-orange-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 mb-2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span className="text-[10px] md:text-xs font-mono tracking-wider truncate">
+                        Klik atau seret gambar ke sini
+                      </span>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="relative w-full max-h-[200px] rounded-md overflow-hidden border border-white/10 group bg-black">
+                    <img 
+                      src={URL.createObjectURL(saranFile)} 
+                      alt="Preview" 
+                      className="w-full h-full max-h-[200px] object-contain"
+                    />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                      <button
+                        type="button"
+                        onClick={() => setSaranFile(null)}
+                        className="bg-red-500/80 hover:bg-red-500 text-white p-3 rounded-full transition-all hover:scale-110 flex items-center justify-center"
+                        title="Hapus Lampiran"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    {/* Nama File */}
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent p-2 pointer-events-none">
+                      <p className="text-[10px] font-mono text-white/70 truncate text-center">{saranFile.name}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">

@@ -164,5 +164,73 @@ export const PublicModule = {
     } catch (error: any) {
       throw new Error(`Gagal mengirim saran: ${error.message}`);
     }
+  },
+
+  /**
+   * Mengambil semua gambar untuk Gallery (Periode, Divisi, Post) dari semua periode
+   */
+  async getAllGallery() {
+    try {
+      const gItems: any[] = [];
+
+      // 1. Ambil semua Periode yang punya gambar
+      const periodes = await prisma.periode.findMany({
+        where: { gambarPeriode: { not: null, notIn: [""] } },
+        orderBy: { created: "desc" }
+      });
+      periodes.forEach(p => {
+        if (p.gambarPeriode) {
+          gItems.push({
+            type: "periode",
+            img: `/uploads/${p.gambarPeriode}`,
+            title: `Periode ${p.periode}`,
+            created: p.created
+          });
+        }
+      });
+
+      // 2. Ambil semua Divisi yang punya gambar
+      const divisis = await prisma.divisi.findMany({
+        where: { gambarDivisi: { not: null, notIn: [""] } },
+        orderBy: { created: "desc" }
+      });
+      divisis.forEach(d => {
+        if (d.gambarDivisi) {
+          gItems.push({
+            type: "divisi",
+            img: `/uploads/${d.gambarDivisi}`,
+            title: d.divisiName,
+            created: d.created
+          });
+        }
+      });
+
+      // 3. Ambil semua Post yang punya gambar
+      const posts = await prisma.post.findMany({
+        where: { gambar: { not: "" } },
+        orderBy: { created: "desc" }
+      });
+      posts.forEach(p => {
+        if (p.gambar) {
+          gItems.push({
+            type: "post",
+            img: `/uploads/${p.gambar}`,
+            title: p.title,
+            description: p.description,
+            created: p.created
+          });
+        }
+      });
+
+      // Sort kombinasi array berdasarkan tanggal dibuat (terbaru)
+      gItems.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime());
+
+      return {
+        message: "Berhasil mengambil data gallery lengkap",
+        data: gItems
+      };
+    } catch (error: any) {
+      throw new Error(`Gagal mengambil data gallery: ${error.message}`);
+    }
   }
 };

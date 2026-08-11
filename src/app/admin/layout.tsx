@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-black text-white font-sans overflow-hidden">
+    <div className="flex h-screen bg-black text-white font-sans overflow-hidden">
       {/* Overlay for mobile when sidebar is open */}
       {isSidebarOpen && (
         <div 
@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {/* Sidebar Container */}
       <div 
         className={`
-          fixed inset-y-0 left-0 z-50 lg:static transition-all duration-300 ease-in-out flex-shrink-0 overflow-hidden
+          fixed inset-y-0 left-0 z-50 lg:static transition-all duration-300 ease-in-out flex-shrink-0 overflow-hidden h-screen
           ${isSidebarOpen ? 'translate-x-0 lg:w-64' : '-translate-x-full lg:translate-x-0 lg:w-0'}
         `}
       >
@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300">
+      <div className="flex-1 flex flex-col h-screen min-w-0 transition-all duration-300">
         {/* Header */}
         <AdminHeader onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
 

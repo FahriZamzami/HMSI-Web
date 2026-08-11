@@ -5,9 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 export default function LoginPage() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
@@ -54,7 +57,7 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <Link href="/" className="inline-block mb-4 hover:scale-105 transition-transform">
             <div className="relative w-24 h-24 mx-auto">
-              <Image src="/logo-hmsi.png" alt="HMSI Logo" fill className="object-contain" />
+              <Image src="/logo-hmsi.png" alt="HMSI Logo" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-contain" />
             </div>
           </Link>
           <h1 className="text-3xl font-extrabold text-white mb-2 tracking-tight">Admin Portal</h1>
@@ -82,14 +85,23 @@ export default function LoginPage() {
 
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-200 ml-1">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/80 focus:border-transparent transition-all backdrop-blur-sm"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-5 py-3.5 pr-12 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/80 focus:border-transparent transition-all backdrop-blur-sm"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+              >
+                {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button

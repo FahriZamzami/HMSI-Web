@@ -97,8 +97,9 @@ export default function AlumniDetailPage() {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-400/30 overflow-x-hidden flex flex-col">
       
-      <Link href="/alumni" className="fixed top-6 left-6 z-50 p-3 bg-black/50 border border-white/10 rounded-full hover:bg-orange-400 hover:text-black transition-colors backdrop-blur-md hidden md:flex items-center justify-center">
-        <FaArrowLeft />
+      <Link href="/alumni" className="fixed top-6 left-6 md:top-8 md:left-8 z-50 inline-flex items-center gap-2 text-zinc-400 hover:text-orange-400 transition-colors group">
+        <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-mono text-sm uppercase tracking-widest hidden md:inline-block">Back</span>
       </Link>
 
       <main className="w-full relative pt-16 pb-20 flex-1">
@@ -147,7 +148,7 @@ export default function AlumniDetailPage() {
             {divisiLainnya.length > 0 && (
                 <div className="w-full flex justify-center">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch">
-                  {divisiLainnya.map((div, idx) => (
+                  {divisiLainnya.map((div: any, idx: number) => (
                     <div key={div.divisiId} className="w-full h-full">
                       <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.15)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col h-full">
                         <div className="relative z-10 flex-1 flex flex-col justify-start p-4 md:p-6 text-center">

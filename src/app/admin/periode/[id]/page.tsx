@@ -230,7 +230,7 @@ export default function DetailPeriodePage({ params }: { params: Promise<{ id: st
                   <img 
                     src={`/uploads/${d.gambarDivisi}`} 
                     alt={d.divisiName}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-500"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-neutral-600">
@@ -273,9 +273,9 @@ export default function DetailPeriodePage({ params }: { params: Promise<{ id: st
 
       {/* Modal Tambah Divisi */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl my-8 animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-neutral-800">
+        <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto pt-10 md:pt-16 pb-12">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl mb-auto flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-neutral-800 shrink-0">
               <h3 className="text-xl font-bold text-white">
                 {modalMode === "create" ? "Tambah Divisi Baru" : "Edit Divisi"}
               </h3>
@@ -290,68 +290,70 @@ export default function DetailPeriodePage({ params }: { params: Promise<{ id: st
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              {errorMsg && (
-                <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">
-                  {errorMsg}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-neutral-300">
-                  Nama Divisi <span className="text-orange-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formDivisi}
-                  onChange={(e) => setFormDivisi(e.target.value)}
-                  placeholder="Contoh: Divisi Keilmuan"
-                  className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-neutral-300">
-                  Tentang Divisi <span className="text-orange-500">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  value={formTentangDivisi}
-                  onChange={(e) => setFormTentangDivisi(e.target.value)}
-                  placeholder="Jelaskan peran dan fungsi divisi ini..."
-                  className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none"
-                ></textarea>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-neutral-300">
-                  Gambar Banner Divisi (Opsional)
-                </label>
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/jpeg, image/png, image/webp"
-                    onChange={handleFileChange}
-                    className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer"
-                  />
-                </div>
-                <p className="text-xs text-neutral-500">
-                  Hanya gambar (JPG/PNG). Akan otomatis dioptimasi ke WebP.
-                </p>
-                {previewUrl && (
-                  <div className="mt-3 relative w-full h-48 rounded-xl overflow-hidden border border-neutral-700 bg-black flex items-center justify-center p-2">
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
-                      className="object-contain w-full h-full"
-                    />
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+              <div className="p-6 space-y-5 overflow-y-auto">
+                {errorMsg && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">
+                    {errorMsg}
                   </div>
                 )}
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-300">
+                    Nama Divisi <span className="text-orange-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formDivisi}
+                    onChange={(e) => setFormDivisi(e.target.value)}
+                    placeholder="Contoh: Divisi Keilmuan"
+                    className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-300">
+                    Tentang Divisi <span className="text-orange-500">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={formTentangDivisi}
+                    onChange={(e) => setFormTentangDivisi(e.target.value)}
+                    placeholder="Jelaskan peran dan fungsi divisi ini..."
+                    className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all resize-none"
+                  ></textarea>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-neutral-300">
+                    Gambar Banner Divisi (Opsional)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/jpeg, image/png, image/webp"
+                      onChange={handleFileChange}
+                      className="w-full px-4 py-3 bg-black border border-neutral-700 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500 cursor-pointer"
+                    />
+                  </div>
+                  <p className="text-xs text-neutral-500">
+                    Hanya gambar (JPG/PNG). Akan otomatis dioptimasi ke WebP.
+                  </p>
+                  {previewUrl && (
+                    <div className="mt-3 relative w-full h-48 rounded-xl overflow-hidden border border-neutral-700 bg-black flex items-center justify-center p-2">
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="pt-4 flex gap-3">
+              <div className="p-6 border-t border-neutral-800 flex gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {

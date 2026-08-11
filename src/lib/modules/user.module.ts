@@ -42,7 +42,7 @@ export const UserModule = {
     const token = await new SignJWT({ userId: user.userId, name: user.name })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime("24h") // Token berlaku 24 jam
+      .setExpirationTime("12h") // Token berlaku 12 jam
       .sign(secret);
 
     return {

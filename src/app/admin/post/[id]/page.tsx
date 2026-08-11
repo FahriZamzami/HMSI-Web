@@ -130,7 +130,7 @@ export default function EditPostPage() {
           </label>
           {displayImage ? (
             <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border border-neutral-700">
-              <Image src={displayImage} alt="Preview" fill className="object-cover" unoptimized />
+              <Image src={displayImage} alt="Preview" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" unoptimized />
               {preview && (
                 <button
                   type="button"

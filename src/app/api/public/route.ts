@@ -53,6 +53,10 @@ export async function POST(request: Request) {
         result = await PublicModule.submitSaran({ ...payload, file });
         break;
 
+      case "get_all_gallery":
+        result = await PublicModule.getAllGallery();
+        break;
+
       default:
         return NextResponse.json(
           { error: `Aksi '${action}' tidak dikenali oleh Public API` },

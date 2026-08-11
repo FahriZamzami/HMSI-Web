@@ -29,7 +29,7 @@ async function main() {
         // 1. Buat User
         const adminUser = await tx.user.create({
             data: {
-                name: 'admin',
+                name: 'Admin HMSI',
                 password: hashedSuperadminPassword,
             },
         })

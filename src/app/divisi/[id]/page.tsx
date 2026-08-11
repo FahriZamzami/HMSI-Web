@@ -125,8 +125,9 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
         <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-black text-white font-sans selection:bg-orange-400/30 no-scrollbar scroll-smooth">
 
         {/* Tombol Kembali (Opsional, melayang) */}
-        <Link href="/#divisi" className="fixed top-10 left-8 z-50 p-3 bg-black/50 border border-white/10 rounded-full hover:bg-orange-400 hover:text-black transition-colors backdrop-blur-md hidden md:flex items-center justify-center">
-            <FaArrowLeft />
+        <Link href="/#divisi" className="fixed top-10 left-8 z-50 inline-flex items-center gap-2 text-zinc-400 hover:text-orange-400 transition-colors group">
+            <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+            <span className="font-mono text-sm uppercase tracking-widest hidden md:inline-block">Back</span>
         </Link>
 
         {/* Logo removed from fixed position; will be placed per-section */}
@@ -234,10 +235,15 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     <div className="space-y-2">
-                        {/* Nama Besar Utama */}
-                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white uppercase italic leading-[1.1] drop-shadow-md break-words max-w-xs">
+                        {/* Nama Pengurus Terpilih */}
+                        <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-none tracking-tight uppercase [text-shadow:0_10px_30px_rgba(0,0,0,0.8)]">
                             {selectedMember ? selectedMember.pengurusName : "Belum Ada Pengurus"}
                         </h2>
+
+                        {/* Nomor Himpunan */}
+                        <p className="text-zinc-400 font-mono text-xs md:text-sm tracking-widest pt-2">
+                            {selectedMember ? selectedMember.nomorAnggota : ""}
+                        </p>
 
                         {/* Jabatan / Role */}
                         <p className="text-orange-400 font-mono text-xs md:text-sm tracking-[0.2em] uppercase font-bold pt-1">

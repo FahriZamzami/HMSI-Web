@@ -16,7 +16,6 @@ export async function POST(request: Request) {
       payload.pengurusId = formData.get("pengurusId");
       payload.role = formData.get("role") as string;
       payload.pengurusName = formData.get("pengurusName") as string;
-      payload.nim = formData.get("nim") as string;
       payload.nomorAnggota = formData.get("nomorAnggota") as string;
       
       const uploadedFile = formData.get("file");

@@ -63,9 +63,9 @@ export const PengurusModule = {
    * Membuat pengurus baru
    */
   async create(payload: any) {
-    const { divisiId, role, pengurusName, nim, nomorAnggota, file } = payload;
+    const { divisiId, role, pengurusName, nomorAnggota, file } = payload;
 
-    if (!divisiId || !role || !pengurusName || !nim || !nomorAnggota) {
+    if (!divisiId || !role || !pengurusName || !nomorAnggota) {
       throw new Error("Semua data teks pengurus wajib diisi");
     }
 
@@ -82,7 +82,6 @@ export const PengurusModule = {
           divisiId: Number(divisiId),
           role: prismaRole as any,
           pengurusName: this.toTitleCase(pengurusName),
-          nim,
           nomorAnggota,
           gambarPengurus: fileName,
         },
@@ -101,9 +100,9 @@ export const PengurusModule = {
    * Mengubah data pengurus (Edit)
    */
   async update(payload: any) {
-    const { pengurusId, role, pengurusName, nim, nomorAnggota, file } = payload;
+    const { pengurusId, role, pengurusName, nomorAnggota, file } = payload;
     
-    if (!pengurusId || !role || !pengurusName || !nim || !nomorAnggota) {
+    if (!pengurusId || !role || !pengurusName || !nomorAnggota) {
       throw new Error("Data pengurus tidak lengkap");
     }
 
@@ -134,7 +133,6 @@ export const PengurusModule = {
         data: {
           role: prismaRole as any,
           pengurusName: this.toTitleCase(pengurusName),
-          nim,
           nomorAnggota,
           gambarPengurus: fileName,
         },

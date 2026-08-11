@@ -50,78 +50,106 @@ export default function AdminSaranPage() {
           BELUM ADA SARAN MASUK
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Daftar Saran (Kiri) */}
-          <div className="lg:col-span-1 space-y-3">
-            {saranList.map((s) => (
-              <div
-                key={s.saranId}
-                onClick={() => setSelectedSaran(s)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedSaran?.saranId === s.saranId
-                    ? "bg-orange-500/10 border-orange-500/50"
-                    : "bg-neutral-900 border-neutral-800 hover:border-neutral-600"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 text-neutral-300 min-w-0">
-                    {s.gambar ? (
-                      <FaImage className="text-orange-400 shrink-0" size={12} />
-                    ) : (
-                      <FaEnvelopeOpenText className="text-neutral-500 shrink-0" size={12} />
-                    )}
-                    <p className="text-sm truncate">{s.saran}</p>
-                  </div>
-                  {/* delete removed to prevent removal of suggestions */}
-                </div>
-                <p className="text-[10px] text-neutral-600 mt-2 font-mono">
-                  {new Date(s.created).toLocaleString("id-ID")}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Detail Saran (Kanan) */}
-          <div className="lg:col-span-2">
-            {selectedSaran ? (
-              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 md:p-8 space-y-6">
-                <div className="flex justify-between items-start gap-4">
-                  <div>
-                    <span className="text-orange-400 font-mono text-[10px] tracking-[0.3em] uppercase">
-                      ANONYMOUS // {new Date(selectedSaran.created).toLocaleString("id-ID")}
-                    </span>
-                  </div>
-                  {/* delete action removed — suggestions are not deletable */}
-                </div>
-
-                <div className="bg-black border border-neutral-800 rounded-2xl p-5">
-                  <p className="text-white text-sm md:text-base leading-relaxed whitespace-pre-wrap">
-                    {selectedSaran.saran}
-                  </p>
-                </div>
-
-                {selectedSaran.gambar && (
-                  <div>
-                    <p className="text-xs font-mono text-neutral-500 uppercase tracking-widest mb-3">
-                      Lampiran Gambar
-                    </p>
-                    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-neutral-800">
-                      <Image
-                        src={`/uploads/${selectedSaran.gambar}`}
-                        alt="Lampiran Saran"
-                        fill
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {saranList.map((s) => (
+            <div
+              key={s.saranId}
+              onClick={() => setSelectedSaran(s)}
+              className="p-5 rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-orange-500/50 hover:bg-neutral-800/50 cursor-pointer transition-all flex flex-col h-full"
+            >
+              <div className="flex items-center gap-2 text-neutral-300 mb-3">
+                {s.gambar ? (
+                  <FaImage className="text-orange-400 shrink-0" size={14} />
+                ) : (
+                  <FaEnvelopeOpenText className="text-neutral-500 shrink-0" size={14} />
                 )}
+                <span className="text-[10px] font-mono tracking-widest uppercase text-neutral-500">Anonymous</span>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full bg-neutral-900 border border-neutral-800 rounded-3xl py-20 text-neutral-600 font-mono text-sm">
-                Pilih saran untuk melihat detail
+              <p className="text-sm text-white line-clamp-3 flex-1 leading-relaxed">
+                {s.saran}
+              </p>
+              <p className="text-[10px] text-neutral-600 mt-4 font-mono">
+                {new Date(s.created).toLocaleString("id-ID")}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Modal Detail Saran */}
+      {selectedSaran && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 md:p-8 backdrop-blur-sm" onClick={() => setSelectedSaran(null)}>
+          
+          {/* Navigasi Kiri */}
+          {saranList.length > 1 && (
+            <button
+              className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-white/30 hover:text-orange-400 transition-colors z-[110] p-2 md:p-4 hover:scale-110 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                const currentIndex = saranList.findIndex(s => s.saranId === selectedSaran.saranId);
+                const prevIndex = currentIndex === 0 ? saranList.length - 1 : currentIndex - 1;
+                setSelectedSaran(saranList[prevIndex]);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8 md:w-12 md:h-12 drop-shadow-lg"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+          )}
+
+          {/* Navigasi Kanan */}
+          {saranList.length > 1 && (
+            <button
+              className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-white/30 hover:text-orange-400 transition-colors z-[110] p-2 md:p-4 hover:scale-110 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                const currentIndex = saranList.findIndex(s => s.saranId === selectedSaran.saranId);
+                const nextIndex = (currentIndex + 1) % saranList.length;
+                setSelectedSaran(saranList[nextIndex]);
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8 md:w-12 md:h-12 drop-shadow-lg"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
+          )}
+
+          <div 
+            className="w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh] z-50 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center pb-4 border-b border-neutral-800">
+              <span className="text-orange-400 font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase">
+                Detail Aspirasi
+              </span>
+              <button onClick={() => setSelectedSaran(null)} className="text-neutral-500 hover:text-white transition-colors bg-black p-2 rounded-full border border-neutral-800">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div className="bg-black border border-neutral-800 rounded-2xl p-5">
+              <p className="text-white text-sm md:text-base leading-relaxed whitespace-pre-wrap">
+                {selectedSaran.saran}
+              </p>
+            </div>
+
+            {selectedSaran.gambar && (
+              <div>
+                <p className="text-xs font-mono text-neutral-500 uppercase tracking-widest mb-3">
+                  Lampiran Gambar
+                </p>
+                <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden border border-neutral-800">
+                  <Image
+                    src={`/uploads/${selectedSaran.gambar}`}
+                    alt="Lampiran Saran"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
               </div>
             )}
+            
+            <p className="text-[10px] text-neutral-600 font-mono text-right">
+              {new Date(selectedSaran.created).toLocaleString("id-ID")}
+            </p>
           </div>
         </div>
       )}

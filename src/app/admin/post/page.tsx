@@ -105,6 +105,7 @@ export default function AdminPostPage() {
                   src={`/uploads/${post.gambar}`}
                   alt={post.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   unoptimized
                 />

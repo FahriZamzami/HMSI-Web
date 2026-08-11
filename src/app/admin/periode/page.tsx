@@ -259,13 +259,13 @@ export default function PeriodePage() {
                     <img 
                       src={`/uploads/${p.gambarPeriode}`} 
                       alt={p.periode} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300" 
+                      className="w-full h-full object-cover transition-all duration-300" 
                     />
                   ) : (
                     <img 
                       src="/logo-hmsi.png" 
                       alt="Logo HMSI" 
-                      className="w-8 h-8 object-contain opacity-50 grayscale" 
+                      className="w-8 h-8 object-contain opacity-50" 
                     />
                   )}
                 </div>
@@ -312,8 +312,8 @@ export default function PeriodePage() {
 
       {/* Modal Tambah/Edit Periode */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto pt-24 pb-12">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl my-auto flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto pt-10 md:pt-16 pb-12">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl mb-auto flex flex-col max-h-[85vh]">
             <div className="flex justify-between items-center p-6 border-b border-neutral-800 shrink-0">
               <h3 className="text-xl font-bold text-white">
                 {modalMode === "create" ? "Tambah Periode Baru" : "Edit Periode"}
@@ -328,12 +328,6 @@ export default function PeriodePage() {
             
             <div className="p-6 overflow-y-auto">
               <form id="periodeForm" onSubmit={handleSubmit} className="space-y-6">
-                {errorMsg && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">
-                    {errorMsg}
-                  </div>
-                )}
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-neutral-300">
                     Nama Periode <span className="text-orange-500">*</span>
@@ -478,11 +472,17 @@ export default function PeriodePage() {
               </form>
             </div>
 
-            <div className="p-6 border-t border-neutral-800 flex gap-3 shrink-0">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="flex-1 py-3 px-4 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-colors"
+            <div className="p-6 border-t border-neutral-800 flex flex-col gap-4 shrink-0">
+              {errorMsg && (
+                <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm animate-in fade-in zoom-in-95 duration-200">
+                  {errorMsg}
+                </div>
+              )}
+              <div className="flex gap-3 w-full">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 py-3 px-4 bg-neutral-800 hover:bg-neutral-700 text-white font-medium rounded-xl transition-colors"
               >
                 Batal
               </button>
@@ -494,6 +494,7 @@ export default function PeriodePage() {
               >
                 {isSubmitting ? "Menyimpan..." : "Simpan"}
               </button>
+              </div>
             </div>
           </div>
         </div>

@@ -34,8 +34,9 @@ export default function AlumniPage() {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-400/30 overflow-x-hidden flex flex-col">
       
-      <Link href="/" className="fixed top-6 left-6 z-50 p-3 bg-black/50 border border-white/10 rounded-full hover:bg-orange-400 hover:text-black transition-colors backdrop-blur-md hidden md:flex items-center justify-center">
-        <FaArrowLeft />
+      <Link href="/" className="fixed top-6 left-6 md:top-8 md:left-8 z-50 inline-flex items-center gap-2 text-zinc-400 hover:text-orange-400 transition-colors group">
+        <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-mono text-sm uppercase tracking-widest hidden md:inline-block">Back</span>
       </Link>
 
       <main className="w-full relative pt-16 pb-20 flex-1">
@@ -76,7 +77,8 @@ export default function AlumniPage() {
                           src={`/uploads/${periode.gambarPeriode}`} 
                           alt={`Periode ${periode.periode}`} 
                           fill 
-                          className="object-cover opacity-40 group-hover:opacity-70 transition-opacity duration-700 grayscale group-hover:grayscale-0" 
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700" 
                           unoptimized
                         />
                       ) : (

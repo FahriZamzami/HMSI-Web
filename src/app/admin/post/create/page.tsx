@@ -99,7 +99,7 @@ export default function CreatePostPage() {
           </label>
           {preview ? (
             <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border border-neutral-700">
-              <Image src={preview} alt="Preview" fill className="object-cover" />
+              <Image src={preview} alt="Preview" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover" />
               <button
                 type="button"
                 onClick={() => { setFile(null); setPreview(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}

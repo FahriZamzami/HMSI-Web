@@ -74,7 +74,6 @@ model Pengurus {
   divisiId       Int          @map("divisi_id")
   role           RolePengurus
   pengurusName   String       @map("pengurus_name")
-  nim            String
   nomorAnggota   String       @map("nomor_anggota")
   gambarPengurus String       @map("gambar_pengurus")
   created        DateTime     @default(now())

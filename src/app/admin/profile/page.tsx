@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { FaLock, FaCheck, FaTimes, FaPowerOff } from "react-icons/fa";
+import { FaLock, FaCheck, FaTimes, FaPowerOff, FaEye, FaEyeSlash } from "react-icons/fa";
 
 interface UserProfile {
   userId: number;
@@ -21,6 +21,9 @@ export default function ProfilePage() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   
@@ -138,6 +141,7 @@ export default function ProfilePage() {
                 src="/logo-hmsi.png" 
                 alt="HMSI Logo" 
                 fill 
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="object-contain p-4"
               />
             </div>
@@ -203,38 +207,65 @@ export default function ProfilePage() {
             <form onSubmit={handlePasswordChange} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-neutral-300">Password Lama</label>
-                <input 
-                  type="password" 
-                  required
-                  value={oldPassword}
-                  onChange={e => setOldPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
-                  placeholder="Masukkan password saat ini"
-                />
+                <div className="relative">
+                  <input 
+                    type={showOldPassword ? "text" : "password"}
+                    required
+                    value={oldPassword}
+                    onChange={e => setOldPassword(e.target.value)}
+                    className="w-full px-4 py-3 pr-12 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
+                    placeholder="Masukkan password saat ini"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOldPassword(!showOldPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors focus:outline-none"
+                  >
+                    {showOldPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-neutral-300">Password Baru</label>
-                  <input 
-                    type="password" 
-                    required
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
-                    placeholder="Masukkan password baru"
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showNewPassword ? "text" : "password"}
+                      required
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      className="w-full px-4 py-3 pr-12 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Masukkan password baru"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors focus:outline-none"
+                    >
+                      {showNewPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-neutral-300">Konfirmasi Password Baru</label>
-                  <input 
-                    type="password" 
-                    required
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
-                    placeholder="Ulangi password baru"
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      className="w-full px-4 py-3 pr-12 bg-black border border-neutral-800 rounded-xl text-white focus:border-orange-500 focus:outline-none"
+                      placeholder="Ulangi password baru"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors focus:outline-none"
+                    >
+                      {showConfirmPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

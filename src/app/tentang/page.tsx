@@ -10,8 +10,9 @@ export default function TentangKami() {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-400/30 overflow-x-hidden flex flex-col">
       
       {/* Tombol Kembali */}
-      <Link href="/#about" className="fixed top-6 left-6 z-50 p-3 bg-black/50 border border-white/10 rounded-full hover:bg-orange-400 hover:text-black transition-colors backdrop-blur-md hidden md:flex items-center justify-center">
-        <FaArrowLeft />
+      <Link href="/#about" className="fixed top-6 left-6 md:top-8 md:left-8 z-50 inline-flex items-center gap-2 text-zinc-400 hover:text-orange-400 transition-colors group">
+        <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+        <span className="font-mono text-sm uppercase tracking-widest hidden md:inline-block">Back</span>
       </Link>
 
       <main className="w-full relative pt-16 pb-20 flex-1">
@@ -88,6 +89,7 @@ export default function TentangKami() {
                     src="/logo-hmsi.png" 
                     alt="Lambang HMSI" 
                     fill 
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-contain p-8 drop-shadow-[0_0_30px_rgba(251,146,60,0.3)] transition-transform duration-700 group-hover:scale-105" 
                   />
                 </div>
