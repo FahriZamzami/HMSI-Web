@@ -23,17 +23,17 @@ export default function Footer() {
         <div className="max-w-[1800px] mx-auto w-full px-8 md:px-16 flex flex-col md:flex-row justify-between items-center md:items-end gap-12">
             
             {/* SISI KIRI: Logo & Copyright */}
-            <div className="flex flex-col items-center md:items-start gap-6">
-            <div className="relative w-48 md:w-64 h-12 md:h-16">
+            <div className="flex flex-col items-center md:items-start gap-4 md:gap-6">
+            <div className="relative w-40 md:w-64 h-12 md:h-16">
                 <Image 
                 src="/logo-hmsi.png" 
                 alt="HMSI Logo" 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="object-contain object-left grayscale opacity-80" 
+                className="object-contain object-center md:object-left grayscale opacity-80" 
                 />
             </div>
-            <div className="flex flex-col gap-1 text-[8px] md:text-[10px] tracking-[0.3em] text-zinc-600 font-mono uppercase">
+            <div className="flex flex-col gap-1 text-[8px] md:text-[10px] tracking-[0.3em] text-zinc-600 font-mono uppercase text-center md:text-left">
                 <span className="text-orange-400/50">Himpunan Mahasiswa Sistem Informasi 2026</span>
             </div>
             </div>

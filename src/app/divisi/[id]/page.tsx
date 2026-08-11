@@ -134,8 +134,11 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
 
         {/* --- SECTION 1: HERO DIVISI --- */}
         <section id="hero-divisi" className="relative h-screen w-full snap-start overflow-hidden bg-black flex flex-col">
-            {/* Background Image Statis */}
-            <div className="absolute inset-0 z-0">
+            {/* Background Grid untuk Mobile */}
+            <div className="absolute inset-0 pointer-events-none z-0 md:hidden" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
+            {/* Background Image Statis (Desktop Only) */}
+            <div className="absolute inset-0 z-0 hidden md:block">
             {divisiData.gambarDivisi ? (
                 <Image 
                     src={`/uploads/${divisiData.gambarDivisi}`} 
@@ -212,7 +215,7 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
         </section>
 
         {/* --- SECTION 2: PENGURUS DIVISI (Immersive Character Focus UI) --- */}
-        <section id="anggota" className="relative h-screen w-full snap-start bg-[#050505] flex items-center justify-center py-6 md:py-12 overflow-hidden border-t border-white/5 selection:bg-orange-400/20">
+        <section id="anggota" className="relative min-h-[100dvh] lg:h-screen w-full snap-start bg-[#050505] flex items-center justify-center py-16 md:py-12 overflow-hidden border-t border-white/5 selection:bg-orange-400/20">
             
             {/* WATERMARK BACKGROUND */}
             <div className="absolute inset-y-0 left-12 flex items-center text-white/[0.01] text-[15rem] font-black italic select-none pointer-events-none z-0 tracking-tighter uppercase whitespace-nowrap">
@@ -222,10 +225,10 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
             {/* Grid background for Pengurus section */}
             <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-            <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center relative z-10">
+            <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
                 
                 {/* ================= SISI KIRI (3 Kolom): Informasi & Detail Teks ================= */}
-                <div className="lg:col-span-3 flex flex-col justify-center text-center lg:text-left space-y-4 order-2 lg:order-1 self-center">
+                <div className="lg:col-span-3 flex flex-col justify-center text-center lg:text-left space-y-3 lg:space-y-4 order-2 lg:order-1 self-center mt-2 lg:mt-0">
                     
                     <div className="flex items-center justify-center lg:justify-start gap-3 pt-1">
                         <div className="w-3 h-3 border border-orange-400/50 rotate-45 flex items-center justify-center">
@@ -236,7 +239,11 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
 
                     <div className="space-y-2">
                         {/* Nama Pengurus Terpilih */}
-                        <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white leading-none tracking-tight uppercase [text-shadow:0_10px_30px_rgba(0,0,0,0.8)]">
+                        <h2 className={`font-bold text-white leading-none tracking-tight uppercase [text-shadow:0_10px_30px_rgba(0,0,0,0.8)] break-words w-full ${
+                            selectedMember?.pengurusName?.length > 25 ? "text-2xl md:text-3xl lg:text-4xl" :
+                            selectedMember?.pengurusName?.length > 15 ? "text-3xl md:text-4xl lg:text-5xl" :
+                            "text-4xl md:text-5xl lg:text-7xl"
+                        }`}>
                             {selectedMember ? selectedMember.pengurusName : "Belum Ada Pengurus"}
                         </h2>
 
@@ -262,10 +269,10 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 {/* ================= TENGAH (5 Kolom): Artwork / Frame Foto Diperbesar & Bingkai Dinamis ================= */}
-                <div className="lg:col-span-5 flex items-center justify-center h-full relative order-1 lg:order-2 py-4 lg:py-0 self-center">
+                <div className="lg:col-span-5 flex items-center justify-center h-full relative order-1 lg:order-2 py-2 lg:py-0 self-center">
                     
                     {/* KONTANER UTAMA */}
-                    <div className="relative w-72 h-[420px] md:w-88 md:h-[540px] lg:w-[410px] lg:h-[610px] filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.95)] group/artwork">
+                    <div className="relative w-48 h-[280px] sm:w-64 sm:h-[380px] md:w-88 md:h-[540px] lg:w-[410px] lg:h-[610px] filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.95)] group/artwork mx-auto">
                         
                         {/* BINGKAI DINAMIS */}
                         <div className="absolute -inset-4 border-2 border-white/10 opacity-70 pointer-events-none z-0 transition-colors duration-500 group-hover/artwork:border-orange-400/30">
@@ -317,7 +324,7 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                         </div>
 
                         {/* Grid List Thumbnails - Diperbesar dengan gap-3 dan max-h dinaikkan agar ruang atas bawah seimbang */}
-                        <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-2 gap-3 overflow-y-auto max-h-[220px] lg:max-h-[560px] pr-1 no-scrollbar justify-center">
+                        <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-2 gap-2 sm:gap-3 overflow-y-auto max-h-[160px] sm:max-h-[220px] lg:max-h-[560px] pr-1 no-scrollbar justify-center">
                             {divisiData.pengurus?.map((member: any) => {
                                 const isActive = selectedMember?.pengurusId === member.pengurusId;
                                 return (
@@ -385,7 +392,7 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
         </section>
 
         {/* --- SECTION 3: PROGRAM KERJA (Arknights Inspired Split UI) --- */}
-        <section id="proker" className="relative h-screen w-full snap-start bg-[#050505] flex items-center justify-center py-12 overflow-hidden border-t border-white/5 selection:bg-orange-400/20">
+        <section id="proker" className="relative min-h-[100dvh] lg:h-screen w-full snap-start bg-[#050505] flex items-center justify-center py-16 md:py-12 overflow-hidden border-t border-white/5 selection:bg-orange-400/20">
             
             {/* WATERMARK BACKGROUND */}
             <div className="absolute inset-y-0 right-12 flex items-center text-white/[0.01] text-[12rem] font-black italic select-none pointer-events-none z-0 tracking-tighter uppercase">
@@ -395,7 +402,7 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
             {/* Grid background for Proker section */}
             <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-            <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 flex flex-col justify-center space-y-8 relative z-10">
+            <div className="max-w-[1650px] mx-auto w-full h-full px-6 md:px-12 flex flex-col justify-center space-y-6 lg:space-y-8 relative z-10 mt-4 lg:mt-0">
                 
                 {/* Section Header */}
                 <div className="text-center lg:text-left space-y-1">
@@ -408,10 +415,10 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                 </div>
 
                 {/* MAIN LAYOUT SPLIT BOX */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 w-full items-stretch">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-10 w-full items-stretch">
                     
                     {/* ================= SISI KIRI (7 Kolom): Display Deskripsi & Detail Proker Aktif ================= */}
-                    <div className="lg:col-span-7 bg-[#0a0a0a] border border-white/10 p-6 md:p-10 flex flex-col justify-between relative overflow-hidden group min-h-[350px] lg:min-h-[500px]">
+                    <div className="hidden lg:flex lg:col-span-7 bg-[#0a0a0a] border border-white/10 p-5 md:p-10 flex-col justify-between relative overflow-hidden group min-h-[250px] sm:min-h-[300px] lg:min-h-[500px]">
                         
                         {/* Ornamen Garis Pojok Khas Arknights */}
                         <div className="absolute top-0 left-0 w-2 h-full bg-orange-400"></div>
@@ -421,17 +428,20 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                         </div>
 
                         {/* Konten Utama Detail */}
-                        <div className="space-y-6">
+                        <div className="space-y-4 lg:space-y-6">
                             <div className="space-y-2">
                                 {/* ID & Kategori Proker */}
                                 <div className="flex items-center gap-3">
-                                    <span className="text-orange-400 font-mono text-sm tracking-widest font-bold">
+                                    <span className="text-orange-400 font-mono text-xs md:text-sm tracking-widest font-bold">
                                         {activeProker ? `PRK-${String(activeProker.prokerId).padStart(3, '0')}` : "PRK-000"}
                                     </span>
                                 </div>
 
                                 {/* Judul Besar Proker */}
-                                <h4 className="text-2xl md:text-4xl font-black tracking-tight text-white uppercase italic leading-tight transition-all duration-300">
+                                <h4 className={`font-black tracking-tight text-white uppercase italic leading-tight transition-all duration-300 break-words w-full ${
+                                    activeProker?.prokerName?.length > 25 ? "text-xl md:text-3xl" :
+                                    "text-2xl md:text-4xl"
+                                }`}>
                                     {activeProker ? activeProker.prokerName : "Belum Ada Program Kerja"}
                                 </h4>
                             </div>
@@ -439,14 +449,14 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                             {/* Deskripsi Panjang */}
                             <div className="space-y-1">
                                 <span className="text-[9px] font-mono tracking-[0.2em] text-zinc-600 block uppercase">Description_</span>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-light max-w-2xl break-words whitespace-pre-wrap">
+                                <p className="text-zinc-400 text-xs md:text-base leading-relaxed font-light max-w-2xl break-words whitespace-pre-wrap max-h-[100px] md:max-h-none overflow-y-auto no-scrollbar">
                                     {activeProker ? activeProker.deskripsi : "-"}
                                 </p>
                             </div>
                         </div>
 
                         {/* Bagian Bawah: Penanggung Jawab (PJ) */}
-                        <div className="border-t border-white/10 pt-4 mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="border-t border-white/10 pt-4 mt-4 lg:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="space-y-1">
                                 <span className="text-[9px] font-mono tracking-[0.2em] text-orange-400/60 block uppercase">Person_In_Charge</span>
                                 <div className="flex flex-wrap gap-2">
@@ -471,7 +481,7 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                     </div>
 
                     {/* ================= SISI KANAN (5 Kolom): List Selector Judul Proker ================= */}
-                    <div className="lg:col-span-5 flex flex-col space-y-3 justify-start max-h-[350px] lg:max-h-[500px] overflow-y-auto pr-1 no-scrollbar relative">
+                    <div className="lg:col-span-5 flex flex-col space-y-2 lg:space-y-3 justify-start max-h-[60vh] sm:max-h-[65vh] lg:max-h-[500px] overflow-y-auto pr-1 no-scrollbar relative">
                         
                         {/* Menambahkan class 'sticky top-0 z-20' agar tetap diam di tempat saat di-scroll */}
                         <div className="sticky top-0 z-20 bg-[#111] border-b-2 border-orange-400 p-3 flex justify-between items-center shrink-0 mb-1">
@@ -485,42 +495,71 @@ export default function PublicDivisiPage({ params }: { params: Promise<{ id: str
                         {divisiData.proker?.map((proker: any) => {
                             const isSelected = activeProker?.prokerId === proker.prokerId;
                             return (
-                                <button
-                                    key={proker.prokerId}
-                                    onClick={() => setActiveProker(proker)}
-                                    className={`w-full text-left p-4 flex items-center justify-between border transition-all duration-300 relative group/btn shrink-0 ${
-                                        isSelected
-                                            ? "bg-orange-400 text-black border-orange-400 font-bold"
-                                            : "bg-zinc-950/80 text-white border-white/5 hover:border-white/20 hover:bg-zinc-900"
-                                    }`}
-                                >
-                                    <div className="flex flex-col gap-0.5 flex-1 pr-4 min-w-0">
-                                        {/* Sub-info ID kecil */}
-                                        <span className={`font-mono text-[9px] tracking-wider ${isSelected ? 'text-black/60' : 'text-zinc-500'}`}>
-                                            PRK-{String(proker.prokerId).padStart(3, '0')}
-                                        </span>
-                                        {/* Judul Proker di List */}
-                                        <span className="text-xs md:text-sm tracking-wide uppercase font-black italic truncate max-w-xs break-words">
-                                            {proker.prokerName}
-                                        </span>
-                                    </div>
+                                <div key={proker.prokerId} className="flex flex-col w-full shrink-0">
+                                    <button
+                                        onClick={() => setActiveProker(proker)}
+                                        className={`w-full text-left p-3 md:p-4 flex items-center justify-between border transition-all duration-300 relative group/btn ${
+                                            isSelected
+                                                ? "bg-orange-400 text-black border-orange-400 font-bold"
+                                                : "bg-zinc-950/80 text-white border-white/5 hover:border-white/20 hover:bg-zinc-900"
+                                        }`}
+                                    >
+                                        <div className="flex flex-col gap-0.5 flex-1 pr-4 min-w-0">
+                                            {/* Sub-info ID kecil */}
+                                            <span className={`font-mono text-[9px] tracking-wider ${isSelected ? 'text-black/60' : 'text-zinc-500'}`}>
+                                                PRK-{String(proker.prokerId).padStart(3, '0')}
+                                            </span>
+                                            {/* Judul Proker di List */}
+                                            <span className="text-xs md:text-sm tracking-wide uppercase font-black italic break-words line-clamp-2">
+                                                {proker.prokerName}
+                                            </span>
+                                        </div>
 
-                                    {/* Arrow Indicator ala Arknights */}
-                                    <div className="shrink-0 flex items-center">
-                                        <svg 
-                                            xmlns="http://www.w3.org/2000/svg" 
-                                            fill="none" 
-                                            viewBox="0 0 24 24" 
-                                            strokeWidth={2.5} 
-                                            stroke="currentColor" 
-                                            className={`w-4 h-4 transition-transform duration-300 ${
-                                                isSelected ? 'translate-x-0 text-black' : '-translate-x-2 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 text-orange-400'
-                                            }`}
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5M4.5 4.5l7.5 7.5-7.5 7.5" />
-                                        </svg>
+                                        {/* Arrow Indicator ala Arknights */}
+                                        <div className="shrink-0 flex items-center">
+                                            <svg 
+                                                xmlns="http://www.w3.org/2000/svg" 
+                                                fill="none" 
+                                                viewBox="0 0 24 24" 
+                                                strokeWidth={2.5} 
+                                                stroke="currentColor" 
+                                                className={`w-4 h-4 transition-transform duration-300 ${
+                                                    isSelected ? 'rotate-90 lg:rotate-0 text-black' : '-translate-x-2 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 text-orange-400'
+                                                }`}
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5M4.5 4.5l7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                    
+                                    {/* ACCORDION DETAIL (Mobile Only) */}
+                                    <div className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${
+                                        isSelected ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
+                                    }`}>
+                                        <div className="bg-[#0a0a0a] border-x border-b border-orange-400 p-4 space-y-4">
+                                            <div className="space-y-1">
+                                                <span className="text-[9px] font-mono tracking-[0.2em] text-zinc-600 block uppercase">Description_</span>
+                                                <p className="text-zinc-400 text-xs leading-relaxed font-light break-words whitespace-pre-wrap max-h-[200px] overflow-y-auto no-scrollbar">
+                                                    {proker.deskripsi || "-"}
+                                                </p>
+                                            </div>
+                                            <div className="space-y-1 border-t border-white/10 pt-3 flex flex-col gap-2">
+                                                <span className="text-[9px] font-mono tracking-[0.2em] text-orange-400/60 block uppercase">Person_In_Charge</span>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {proker.pengurusProker && proker.pengurusProker.length > 0 ? (
+                                                        proker.pengurusProker.map((pp: any) => (
+                                                            <span key={pp.pengurusId} className="px-2 py-1 bg-white/5 border border-white/10 rounded-full text-white font-medium text-[10px]">
+                                                                {pp.pengurus.pengurusName}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-zinc-500 font-medium text-[10px] italic">Belum ada PIC</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </button>
+                                </div>
                             );
                         })}
                     </div>

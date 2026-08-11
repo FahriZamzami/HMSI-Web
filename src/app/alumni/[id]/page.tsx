@@ -147,10 +147,10 @@ export default function AlumniDetailPage() {
             {/* Divisi Lainnya (Di bawah, grid max 3 kolom, center aligned) */}
             {divisiLainnya.length > 0 && (
                 <div className="w-full flex justify-center">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch">
+                <div className="flex flex-wrap justify-center gap-6 md:gap-8 items-stretch w-full">
                   {divisiLainnya.map((div: any, idx: number) => (
-                    <div key={div.divisiId} className="w-full h-full">
-                      <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.15)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col h-full">
+                    <div key={div.divisiId} className="w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] flex">
+                      <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.15)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col h-full w-full">
                         <div className="relative z-10 flex-1 flex flex-col justify-start p-4 md:p-6 text-center">
                           <h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic text-white transition-colors duration-300 group-hover:text-orange-400 leading-none">
                             {div.divisiName}
