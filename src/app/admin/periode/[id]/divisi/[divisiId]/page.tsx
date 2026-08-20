@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { FaArrowLeft, FaPlus, FaTimes, FaUserTie, FaBriefcase, FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
+import { FaArrowLeft, FaPlus, FaTimes, FaUserTie, FaBriefcase, FaEdit, FaTrash, FaUserCircle, FaCheck, FaDownload } from "react-icons/fa";
 
 interface DivisiInfo {
   divisiName: string;
@@ -30,7 +30,11 @@ const ROLE_OPTIONS = [
   "Ketua Himpunan",
   "Wakil Ketua Himpunan",
   "Sekretaris Umum",
+  "Sekretaris Umum 1",
+  "Sekretaris Umum 2",
   "Bendahara Umum",
+  "Bendahara Umum 1",
+  "Bendahara Umum 2",
   "Kepala Divisi",
   "Sekretaris Divisi",
   "Bendahara Divisi",
@@ -68,6 +72,14 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
   const [formProker, setFormProker] = useState({ prokerName: "", deskripsi: "", picIds: [] as number[] });
   const [isSubmittingProker, setIsSubmittingProker] = useState(false);
   const [errorProker, setErrorProker] = useState("");
+
+  // States Import
+  const [isModalImportPengurusOpen, setIsModalImportPengurusOpen] = useState(false);
+  const [isModalImportProkerOpen, setIsModalImportProkerOpen] = useState(false);
+  const [formImportFile, setFormImportFile] = useState<File | null>(null);
+  const [isSubmittingImport, setIsSubmittingImport] = useState(false);
+  const [errorImport, setErrorImport] = useState("");
+  const [successImportMessage, setSuccessImportMessage] = useState("");
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -273,6 +285,72 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  // --- Handlers Import ---
+  const openImportPengurus = () => {
+    setFormImportFile(null);
+    setErrorImport("");
+    setIsModalImportPengurusOpen(true);
+  };
+
+  const openImportProker = () => {
+    setFormImportFile(null);
+    setErrorImport("");
+    setIsModalImportProkerOpen(true);
+  };
+
+  const submitImportPengurus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formImportFile) return;
+    setIsSubmittingImport(true);
+    setErrorImport("");
+
+    try {
+      const formData = new FormData();
+      formData.append("action", "import_bulk");
+      formData.append("divisiId", divisiId);
+      formData.append("file", formImportFile);
+
+      const res = await fetch("/api/pengurus", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setIsModalImportPengurusOpen(false);
+      setFormImportFile(null);
+      fetchData();
+      setSuccessImportMessage(data.message);
+    } catch (err: any) {
+      setErrorImport(err.message || "Terjadi kesalahan saat import");
+    } finally {
+      setIsSubmittingImport(false);
+    }
+  };
+
+  const submitImportProker = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formImportFile) return;
+    setIsSubmittingImport(true);
+    setErrorImport("");
+
+    try {
+      const formData = new FormData();
+      formData.append("action", "import_bulk");
+      formData.append("divisiId", divisiId);
+      formData.append("file", formImportFile);
+
+      const res = await fetch("/api/proker", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setIsModalImportProkerOpen(false);
+      setFormImportFile(null);
+      fetchData();
+      setSuccessImportMessage(data.message);
+    } catch (err: any) {
+      setErrorImport(err.message || "Terjadi kesalahan saat import");
+    } finally {
+      setIsSubmittingImport(false);
+    }
+  };
 
   if (isLoading) {
     return <div className="p-12 text-center text-neutral-400">Memuat data divisi...</div>;
@@ -307,12 +385,20 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
             </div>
             Pengurus Divisi
           </h3>
-          <button
-            onClick={openCreatePengurus}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-orange-600/20"
-          >
-            <FaPlus size={12} /> Tambah Pengurus
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={openImportPengurus}
+              className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg border border-neutral-700"
+            >
+              Import
+            </button>
+            <button
+              onClick={openCreatePengurus}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-orange-600/20"
+            >
+              <FaPlus size={12} /> Tambah Pengurus
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -363,12 +449,20 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
             </div>
             Program Kerja
           </h3>
-          <button
-            onClick={openCreateProker}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-blue-600/20"
-          >
-            <FaPlus size={12} /> Tambah Proker
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={openImportProker}
+              className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-semibold rounded-xl transition-all shadow-lg border border-neutral-700"
+            >
+              Import
+            </button>
+            <button
+              onClick={openCreateProker}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all shadow-lg shadow-blue-600/20"
+            >
+              <FaPlus size={12} /> Tambah Proker
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -439,16 +533,32 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-xs font-medium text-neutral-300">Nomor Anggota <span className="text-orange-500">*</span></label>
-                  <input type="text" required value={formPengurus.nomorAnggota} onChange={e => setFormPengurus({...formPengurus, nomorAnggota: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
+                  <label className="block text-xs font-medium text-neutral-300">Nomor Anggota <span className="text-neutral-500">(Opsional)</span></label>
+                  <input type="text" value={formPengurus.nomorAnggota} onChange={e => setFormPengurus({...formPengurus, nomorAnggota: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none" />
                 </div>
                 <div className="space-y-1">
                   <label className="block text-xs font-medium text-neutral-300">Jabatan <span className="text-orange-500">*</span></label>
                   <select required value={formPengurus.role} onChange={e => setFormPengurus({...formPengurus, role: e.target.value})} className="w-full px-3 py-2 bg-black border border-neutral-700 rounded-lg text-white text-sm focus:border-orange-500 outline-none">
                     {ROLE_OPTIONS.map(opt => {
-                      const isGlobal = ["Ketua Himpunan", "Wakil Ketua Himpunan", "Sekretaris Umum", "Bendahara Umum"].includes(opt);
+                      const isGlobal = ["Ketua Himpunan", "Wakil Ketua Himpunan", "Sekretaris Umum", "Sekretaris Umum 1", "Sekretaris Umum 2", "Bendahara Umum", "Bendahara Umum 1", "Bendahara Umum 2"].includes(opt);
                       if (isGlobal && takenRoles.includes(opt) && formPengurus.role !== opt) {
                         return null; // Sembunyikan jika role sudah diambil orang lain di periode ini
+                      }
+
+                      if (formPengurus.role !== opt) {
+                        const hasSekUmum = takenRoles.includes("Sekretaris Umum");
+                        const hasSekUmum1 = takenRoles.includes("Sekretaris Umum 1");
+                        const hasSekUmum2 = takenRoles.includes("Sekretaris Umum 2");
+                        
+                        const hasBenUmum = takenRoles.includes("Bendahara Umum");
+                        const hasBenUmum1 = takenRoles.includes("Bendahara Umum 1");
+                        const hasBenUmum2 = takenRoles.includes("Bendahara Umum 2");
+                        
+                        if ((opt === "Sekretaris Umum 1" || opt === "Sekretaris Umum 2") && hasSekUmum) return null;
+                        if (opt === "Sekretaris Umum" && (hasSekUmum1 || hasSekUmum2)) return null;
+                        
+                        if ((opt === "Bendahara Umum 1" || opt === "Bendahara Umum 2") && hasBenUmum) return null;
+                        if (opt === "Bendahara Umum" && (hasBenUmum1 || hasBenUmum2)) return null;
                       }
 
                       // Local division roles constraints
@@ -560,6 +670,127 @@ export default function DetailDivisiPage({ params }: { params: Promise<{ id: str
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL IMPORT PENGURUS */}
+      {isModalImportPengurusOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl my-8 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-neutral-800">
+              <h3 className="text-xl font-bold text-white">Import Pengurus</h3>
+              <button onClick={() => setIsModalImportPengurusOpen(false)} className="text-neutral-400 hover:text-white">
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={submitImportPengurus} className="p-6 space-y-4">
+              {errorImport && <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">{errorImport}</div>}
+              
+              <div className="text-sm text-neutral-400 space-y-2 mb-4 bg-black/50 p-4 rounded-xl border border-neutral-800">
+                <p><strong>Ketentuan Import:</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Pastikan format file adalah <span className="text-white">.xlsx</span></li>
+                  <li>Kolom <span className="text-white">Nama</span> wajib diisi.</li>
+                  <li>Kolom <span className="text-white">Nomor Anggota</span> opsional.</li>
+                  <li>Jika baris memiliki Nomor Anggota tapi Nama kosong, proses akan dibatalkan.</li>
+                  <li>Pengurus yang di-import otomatis menjadi <span className="text-white">Staf Divisi</span>.</li>
+                </ul>
+                <div className="mt-4">
+                  <a href="/template/TemplateAnggota.xlsx" download className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-500 border border-orange-500/30 rounded-lg text-xs font-semibold transition-colors">
+                    <FaDownload size={12} /> Download Template Anggota
+                  </a>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-neutral-300">File Excel (.xlsx) <span className="text-orange-500">*</span></label>
+                <input 
+                  type="file" 
+                  accept=".xlsx"
+                  required
+                  onChange={e => setFormImportFile(e.target.files ? e.target.files[0] : null)} 
+                  className="w-full text-sm text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-500/10 file:text-orange-500 hover:file:bg-orange-500/20"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end pt-4 gap-2">
+                <button type="button" onClick={() => setIsModalImportPengurusOpen(false)} className="w-full sm:w-auto px-4 py-3 sm:py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 rounded-xl">Batal</button>
+                <button type="submit" disabled={isSubmittingImport} className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl">
+                  {isSubmittingImport ? "Memproses..." : "Import File"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL IMPORT PROKER */}
+      {isModalImportProkerOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-3xl w-full max-w-md shadow-2xl my-8 animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-neutral-800">
+              <h3 className="text-xl font-bold text-white">Import Program Kerja</h3>
+              <button onClick={() => setIsModalImportProkerOpen(false)} className="text-neutral-400 hover:text-white">
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={submitImportProker} className="p-6 space-y-4">
+              {errorImport && <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-sm">{errorImport}</div>}
+              
+              <div className="text-sm text-neutral-400 space-y-2 mb-4 bg-black/50 p-4 rounded-xl border border-neutral-800">
+                <p><strong>Ketentuan Import:</strong></p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Pastikan format file adalah <span className="text-white">.xlsx</span></li>
+                  <li>Kolom <span className="text-white">Judul</span> dan <span className="text-white">Deskripsi</span> wajib diisi.</li>
+                  <li>Jika ada salah satu yang kosong pada suatu baris, proses akan dibatalkan.</li>
+                </ul>
+                <div className="mt-4">
+                  <a href="/template/TemplateProker.xlsx" download className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-blue-500/30 rounded-lg text-xs font-semibold transition-colors">
+                    <FaDownload size={12} /> Download Template Proker
+                  </a>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-xs font-medium text-neutral-300">File Excel (.xlsx) <span className="text-blue-500">*</span></label>
+                <input 
+                  type="file" 
+                  accept=".xlsx"
+                  required
+                  onChange={e => setFormImportFile(e.target.files ? e.target.files[0] : null)} 
+                  className="w-full text-sm text-neutral-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-500 hover:file:bg-blue-500/20"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end pt-4 gap-2">
+                <button type="button" onClick={() => setIsModalImportProkerOpen(false)} className="w-full sm:w-auto px-4 py-3 sm:py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 rounded-xl">Batal</button>
+                <button type="submit" disabled={isSubmittingImport} className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl">
+                  {isSubmittingImport ? "Memproses..." : "Import File"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL SUCCESS IMPORT */}
+      {successImportMessage && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-neutral-900 border border-green-500/50 rounded-3xl w-full max-w-sm shadow-2xl my-8 animate-in zoom-in-95 duration-200 flex flex-col items-center p-8 text-center">
+            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mb-4">
+              <FaCheck size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Import Berhasil!</h3>
+            <p className="text-neutral-400 text-sm mb-6">{successImportMessage}</p>
+            <button 
+              onClick={() => setSuccessImportMessage("")}
+              className="w-full py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-600/20"
+            >
+              Tutup
+            </button>
           </div>
         </div>
       )}

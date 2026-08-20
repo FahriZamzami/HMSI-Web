@@ -133,5 +133,76 @@ export const ProkerModule = {
     } catch (error: any) {
       throw new Error(`Gagal menghapus program kerja: ${error.message}`);
     }
+  },
+
+  /**
+   * Import Bulk Proker dari Excel
+   */
+  async importBulk(payload: any, fileBuffer: Buffer) {
+    const { divisiId } = payload;
+    if (!divisiId) throw new Error("ID Divisi dibutuhkan untuk import");
+    
+    if (!fileBuffer) {
+      throw new Error("File Excel tidak ditemukan");
+    }
+
+    try {
+      const xlsx = require("xlsx");
+      const workbook = xlsx.read(fileBuffer, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const data = xlsx.utils.sheet_to_json(sheet);
+
+      if (data.length === 0) {
+        throw new Error("File Excel kosong");
+      }
+
+      const rowsToInsert = [];
+      
+      for (let i = 0; i < data.length; i++) {
+        const row = data[i] as any;
+        const rowNum = i + 2; // +1 for 0-index, +1 for header
+
+        const rawJudul = row["judul"] || row["Judul"] || "";
+        const rawDeskripsi = row["deskripsi"] || row["Deskripsi"] || "";
+
+        const judul = String(rawJudul).trim();
+        const deskripsi = String(rawDeskripsi).trim();
+
+        if (!judul && !deskripsi) {
+          continue; // baris kosong beneran
+        }
+
+        if (judul && !deskripsi) {
+          throw new Error(`Validasi Gagal pada baris ke-${rowNum}: Memiliki judul tapi deskripsi kosong.`);
+        }
+
+        if (deskripsi && !judul) {
+          throw new Error(`Validasi Gagal pada baris ke-${rowNum}: Memiliki deskripsi tapi judul kosong.`);
+        }
+
+        rowsToInsert.push({
+          divisiId: Number(divisiId),
+          prokerName: judul,
+          deskripsi: deskripsi,
+        });
+      }
+
+      if (rowsToInsert.length === 0) {
+        throw new Error("Tidak ada data valid yang ditemukan untuk di-import");
+      }
+
+      const result = await prisma.proker.createMany({
+        data: rowsToInsert
+      });
+
+      return {
+        message: `Berhasil meng-import ${result.count} data program kerja.`,
+        data: result
+      };
+    } catch (error: any) {
+      throw new Error(error.message); // lempar langsung agar terbaca di frontend
+    }
   }
 };
+

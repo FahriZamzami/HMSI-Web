@@ -64,7 +64,11 @@ export default function AlumniDetailPage() {
     "ketua himpunan",
     "wakil ketua himpunan",
     "sekretaris umum",
+    "sekretaris umum 1",
+    "sekretaris umum 2",
     "bendahara umum",
+    "bendahara umum 1",
+    "bendahara umum 2",
     "kepala divisi",
     "sekretaris divisi",
     "bendahara divisi",
@@ -73,11 +77,8 @@ export default function AlumniDetailPage() {
   ];
 
   const getRoleString = (p: any) => {
-    return (
-      (p?.jabatan || p?.posisi || p?.role || p?.title || p?.pengurusRole || p?.pengurusJabatan || "")
-        .toString()
-        .toLowerCase()
-    );
+    const raw = (p?.jabatan || p?.posisi || p?.role || p?.title || p?.pengurusRole || p?.pengurusJabatan || "").toString().toLowerCase();
+    return raw.replace(/[._\-]/g, " ").replace(/\s+/g, " ").trim();
   };
 
   const sortPengurus = (list: any[]) => {
@@ -126,16 +127,35 @@ export default function AlumniDetailPage() {
             {divisiUtama && (
               <div className="w-full flex justify-center mb-10">
                 <div className="w-full max-w-[400px]">
-                  <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_30px_rgba(251,146,60,0.2)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col">
+                  <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_30px_rgba(251,146,60,0.2)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col rounded-2xl">
                     <div className="relative z-10 flex-1 flex flex-col justify-start p-6 md:p-8 text-center">
                       <h3 className="text-2xl md:text-4xl font-black tracking-tighter uppercase italic text-white transition-colors duration-300 group-hover:text-orange-400 leading-none">
                         {divisiUtama.divisiName}
                       </h3>
+                      <div className="w-full h-[1px] bg-white/50 my-4"></div>
                       {divisiUtama.pengurus && divisiUtama.pengurus.length > 0 && (
                         <div className="text-white/70 text-xs md:text-sm font-medium mt-3 tracking-wide space-y-1">
-                          {sortPengurus(divisiUtama.pengurus).map((p, idx) => (
-                            <p key={idx}>{p.pengurusName}</p>
-                          ))}
+                          {(() => {
+                            const sorted = sortPengurus(divisiUtama.pengurus);
+                            const stafList = sorted.filter(p => getRoleString(p) === "staf divisi");
+                            const nonStafList = sorted.filter(p => getRoleString(p) !== "staf divisi");
+                            
+                            return (
+                              <>
+                                {nonStafList.map((p, idx) => (
+                                  <p key={idx}><span className="font-semibold text-white">{p.role.replace(/_/g, " ")} :</span> {p.pengurusName}</p>
+                                ))}
+                                {stafList.length > 0 && (
+                                  <div className="mt-3">
+                                    <p className="font-semibold text-white mb-1">Staf :</p>
+                                    {stafList.map((p, idx) => (
+                                      <p key={idx}>{p.pengurusName}</p>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
@@ -150,16 +170,35 @@ export default function AlumniDetailPage() {
                 <div className="flex flex-wrap justify-center gap-6 md:gap-8 items-stretch w-full">
                   {divisiLainnya.map((div: any, idx: number) => (
                     <div key={div.divisiId} className="w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] flex">
-                      <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.15)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col h-full w-full">
+                      <div className="group relative bg-black overflow-hidden shadow-lg hover:shadow-[0_0_20px_rgba(251,146,60,0.15)] transition-all duration-500 border border-orange-400 hover:border-orange-400 flex flex-col h-full w-full rounded-2xl">
                         <div className="relative z-10 flex-1 flex flex-col justify-start p-4 md:p-6 text-center">
                           <h3 className="text-xl md:text-3xl font-black tracking-tighter uppercase italic text-white transition-colors duration-300 group-hover:text-orange-400 leading-none">
                             {div.divisiName}
                           </h3>
+                          <div className="w-full h-[1px] bg-white/50 my-3"></div>
                           {div.pengurus && div.pengurus.length > 0 && (
-                            <div className="text-white/70 text-xs md:text-sm font-medium mt-2 tracking-wide space-y-1">
-                              {sortPengurus(div.pengurus).map((p, pidx) => (
-                                <p key={pidx}>{p.pengurusName}</p>
-                              ))}
+                            <div className="text-white/70 text-xs md:text-sm font-medium mt-3 tracking-wide space-y-1">
+                              {(() => {
+                                const sorted = sortPengurus(div.pengurus);
+                                const stafList = sorted.filter((p: any) => getRoleString(p) === "staf divisi");
+                                const nonStafList = sorted.filter((p: any) => getRoleString(p) !== "staf divisi");
+                                
+                                return (
+                                  <>
+                                    {nonStafList.map((p: any, pidx: number) => (
+                                      <p key={pidx}><span className="font-semibold text-white">{p.role.replace(/_/g, " ")} :</span> {p.pengurusName}</p>
+                                    ))}
+                                    {stafList.length > 0 && (
+                                      <div className="mt-3">
+                                        <p className="font-semibold text-white mb-1">Staf :</p>
+                                        {stafList.map((p: any, pidx: number) => (
+                                          <p key={pidx}>{p.pengurusName}</p>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </>
+                                );
+                              })()}
                             </div>
                           )}
                         </div>

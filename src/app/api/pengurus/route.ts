@@ -58,6 +58,14 @@ export async function POST(request: Request) {
         result = await PengurusModule.delete(payload);
         break;
 
+      case "import_bulk":
+        if (!file) {
+          return NextResponse.json({ error: "File Excel tidak ditemukan" }, { status: 400 });
+        }
+        const buffer = Buffer.from(await file.arrayBuffer());
+        result = await PengurusModule.importBulk(payload, buffer);
+        break;
+
       default:
         return NextResponse.json(
           { error: `Aksi '${action}' tidak dikenali oleh Pengurus API` },
